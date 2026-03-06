@@ -1,0 +1,92 @@
+.rhythm-lane-graph {
+  display: grid;
+  gap: 4px;
+}
+
+.rhythm-lane-beat-labels {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  padding: 0 6px;
+  font-size: 9px;
+  font-family: var(--font-mono);
+  color: #f0d3a3;
+}
+
+.rhythm-lane-beat-labels .is-downbeat {
+  font-weight: 700;
+}
+
+.rhythm-lane-track {
+  position: relative;
+  height: 34px;
+  border: 1px solid var(--border-2);
+  border-radius: 7px;
+  background: var(--surface-3);
+  overflow: hidden;
+}
+
+.rhythm-lane-grid-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.rhythm-lane-grid-line.is-major {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.rhythm-lane-grid-line.is-sub {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.rhythm-lane-track::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-left: 2px solid rgba(232, 170, 46, 0.28);
+  pointer-events: none;
+}
+
+.rhythm-lane-event {
+  position: absolute;
+  top: 68%;
+  height: 12px;
+  border-radius: 999px;
+  transform: translateY(-50%);
+  opacity: 0.9;
+}
+
+.rhythm-lane-event.is-pulse {
+  box-shadow: 0 0 0 1px rgba(232, 170, 46, 0.34);
+}
+
+.rhythm-lane-event.is-repeat {
+  opacity: 0.64;
+  box-shadow: 0 0 0 1px rgba(91, 163, 201, 0.28);
+}
+
+.rhythm-lane-event.is-manual {
+  box-shadow: 0 0 0 1px rgba(196, 73, 160, 0.3);
+}
+
+.rhythm-lane-graph.is-full-block .rhythm-lane-event {
+  top: 0;
+  bottom: 0;
+  height: auto;
+  border-radius: 0;
+  transform: none;
+  opacity: 0.72;
+}
+
+.rhythm-lane-marker {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  width: 2px;
+  background: rgba(240, 214, 172, 0.92);
+  border-radius: 999px;
+  transform: translateX(-50%);
+}

@@ -1,0 +1,44 @@
+.tonal-staff-graph {
+  position: relative;
+  width: 100%;
+  height: 78px;
+  border: 1px solid var(--border-2);
+  border-radius: 8px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.015), rgba(255, 255, 255, 0));
+  overflow: hidden;
+}
+
+.tonal-staff-lines {
+  position: absolute;
+  inset: 0;
+}
+
+.tonal-staff-line {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  height: 1px;
+  transform: translateY(-50%);
+  background: rgba(142, 149, 186, 0.32);
+}
+
+.tonal-staff-points {
+  position: absolute;
+  inset: 0;
+}
+
+.tonal-staff-note {
+  position: absolute;
+  width: 11px;
+  height: 7px;
+  border: 1px solid;
+  border-radius: 999px;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 0 1px rgba(5, 5, 10, 0.45);
+}
+
+.tonal-staff-note.is-root {
+  box-shadow:
+    0 0 0 1px rgba(5, 5, 10, 0.45),
+    0 0 10px rgba(255, 255, 255, 0.12);
+}

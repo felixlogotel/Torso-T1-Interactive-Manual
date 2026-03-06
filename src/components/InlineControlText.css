@@ -1,0 +1,50 @@
+.inline-control-text {
+  display: inline;
+}
+
+.inline-control-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 0.08em;
+  padding: 0.04em 0.38em;
+  border: 1px solid var(--border-2);
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--text);
+  font: inherit;
+  line-height: 1.15;
+  vertical-align: baseline;
+  cursor: pointer;
+  transition: transform 0.12s ease, border-color 0.12s ease, background 0.12s ease, color 0.12s ease;
+}
+
+.inline-control-link.is-text {
+  font-weight: 600;
+}
+
+.inline-control-link:hover {
+  transform: translateY(-1px);
+}
+
+.inline-control-link:focus-visible {
+  outline: 2px solid var(--text-3);
+  outline-offset: 2px;
+}
+
+.inline-control-link.is-kbd {
+  margin: 0 0.04em;
+  padding: 0.08em 0.36em;
+  font-family: var(--font-mono);
+  font-size: 0.96em;
+  font-weight: 700;
+  line-height: 1.05;
+}
+
+.inline-control-link.is-static {
+  cursor: default;
+}
+
+.inline-control-link.is-static:hover {
+  transform: none;
+}
