@@ -231,6 +231,14 @@
   gap: 12px;
 }
 
+.structure-focus-kicker {
+  margin-bottom: 2px;
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 .structure-focus-head {
   display: flex;
   align-items: center;
@@ -251,7 +259,10 @@
   border: 1px solid rgba(232, 122, 10, 0.42);
   border-radius: 6px;
   background: rgba(232, 122, 10, 0.14);
-  padding: 4px 8px;
+  padding: 0 8px;
+  min-height: 26px;
+  display: inline-flex;
+  align-items: center;
 }
 
 .structure-focus-badge.is-global {
@@ -286,7 +297,10 @@
   border: 1px solid rgba(91, 163, 201, 0.38);
   border-radius: 6px;
   background: rgba(91, 163, 201, 0.12);
-  padding: 4px 9px;
+  padding: 0 9px;
+  min-height: 26px;
+  display: inline-flex;
+  align-items: center;
 }
 
 .structure-focus-count.is-bank {
@@ -355,17 +369,22 @@
   color: var(--text-3);
 }
 
-.structure-focus-shortcuts-grid {
+.structure-shortcut-flow {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
+  gap: 9px;
 }
 
 .structure-shortcut-item {
   border: 1px solid var(--border-2);
   border-radius: 9px;
   background: var(--surface-2);
-  padding: 9px;
+  padding: 10px;
+  display: grid;
+  gap: 6px;
+  align-items: start;
+}
+
+.structure-shortcut-copy {
   display: grid;
   gap: 6px;
 }
@@ -403,7 +422,7 @@
     display: none;
   }
 
-  .structure-focus-shortcuts-grid {
-    grid-template-columns: 1fr;
+  .structure-shortcut-item {
+    padding: 9px;
   }
 }

@@ -26,7 +26,7 @@ export const KNOBS = [
   },
   {
     id: 'PULSES', label: 'PULSES', secondary: 'ROTATE', section: 'SHAPE', c: 2, r: 1,
-    description: 'Nombre de pulses euclidiens répartis dans les steps. Les pulses ajoutés manuellement en vue PULSES restent indépendants des edits euclidiens. ROTATE décale le point de départ du pattern.',
+    description: 'Nombre de pulses euclidiens répartis dans les steps. Tu peux aussi ajouter ou retirer des pulses manuellement en vue PULSES via les VBx.',
     shortcuts: [
       { key: 'Turn PULSES', action: 'Ajouter/retirer des pulses euclidiens' },
       { key: 'Press & Turn PULSES', action: 'Éditer les pulses en visualisant la page' },
@@ -39,7 +39,7 @@ export const KNOBS = [
   },
   {
     id: 'CYCLES', label: 'CYCLES', secondary: null, section: 'SHAPE', c: 3, r: 1,
-    description: 'Conteneurs de variations de paramètres qui se rejouent en séquence sur le pattern. Par défaut 4 cycles actifs, jusqu’à 16. Un cycle édité locke les valeurs de paramètres modifiées.',
+    description: 'Variantes de track rejouées en séquence sur le pattern. Par défaut, 4 cycles actifs sont présents. Tu peux ensuite éditer certains cycles pour créer une progression. Chaque cycle rejoue sa propre version des paramètres.',
     shortcuts: [
       { key: 'Hold ou Double-press CYCLES', action: 'Afficher/verrouiller la vue cycles' },
       { key: 'En vue cycles: Press VBx', action: 'Sélectionner cycle(s) à éditer' },
@@ -53,7 +53,7 @@ export const KNOBS = [
   },
   {
     id: 'DIVISION', label: 'DIVISION', secondary: null, section: 'SHAPE', c: 4, r: 1,
-    description: 'Valeur rythmique des steps (time signature de la track): options quadruplets et triplets via VBs. Possibilité de mode libre avec résolution 96 PPQN.',
+    description: 'Valeur rythmique des steps (time signature de la track): tu peux choisir un preset de division via les VBx. Possibilité de mode libre avec résolution 96 PPQN.',
     shortcuts: [
       { key: 'Turn DIVISION', action: 'Parcourir les divisions presets' },
       { key: 'Hold ou Double-press DIVISION', action: 'Afficher/verrouiller la vue divisions' },
@@ -212,14 +212,13 @@ export const KNOBS = [
   },
   {
     id: 'LENGTH', label: 'LENGTH', secondary: 'QUANTIZE', section: 'SETUP', c: 2, r: 1,
-    description: 'Réduit la longueur de boucle de la track. QUANTIZE (secondaire) règle la fenêtre de synchronisation pour le changement de pattern.',
+    description: 'Réduit la longueur de boucle de la track. QUANTIZE (secondaire) règle quand un pattern en attente démarre (barre/subdivision).',
     shortcuts: [
       { key: 'Turn LENGTH', action: 'Réduire la longueur de boucle de la track' },
       { key: 'Hold / Double-press LENGTH', action: 'Afficher / verrouiller la vue length' },
-      { key: 'En vue LENGTH: [CLEAR]', action: 'Définir un random start (glitch)' },
-      { key: 'En vue LENGTH: [CLEAR] + Turn LENGTH', action: 'Changer longueur + random start' },
       { key: '[CTRL] + Press QUANTIZE', action: 'Afficher la vue quantize' },
       { key: '[CTRL] + Turn QUANTIZE', action: 'Modifier le quantize du pattern' },
+      { key: 'En vue QUANTIZE: Press VBx', action: 'Sélection directe (1–8, 16, 1/2, 1/4, 1/8)' },
     ],
     notes: 'LENGTH est stocké au niveau track. QUANTIZE est stocké au niveau pattern.',
   },
@@ -237,15 +236,15 @@ export const KNOBS = [
   },
   {
     id: 'RANDOM', label: 'RANDOM', secondary: 'RATE', section: 'SETUP', c: 2, r: 2,
-    description: 'Modulation aléatoire globale sur 16 pas. RANDOM règle la probabilité d’application (souvent perçue comme intensité d’évolution). RATE règle la division temporelle de la séquence random.',
+    description: 'RANDOM pilote une séquence de modulation aléatoire sur 16 pas. Turn RANDOM règle la probabilité d’application (0–100%). CTRL + Turn RANDOM (RATE) règle la vitesse/division de cette séquence. Hold RANDOM + Turn un autre knob règle l’intensité bi-polaire du paramètre choisi.',
     shortcuts: [
       { key: 'Turn RANDOM', action: 'Ajuster la probabilité globale de randomisation (0–100%)' },
       { key: 'Hold / Double-press RANDOM', action: 'Afficher / verrouiller la vue random' },
-      { key: 'Hold RANDOM + Turn Knob', action: 'Appliquer un amount bi-polaire sur ce paramètre' },
-      { key: 'Hold RANDOM + Press Knob + VBx', action: 'Régler finement l’amount du paramètre' },
-      { key: 'Hold RANDOM + Press Knob + [VB8]/[VB16]', action: 'Décaler la phase de la séquence random' },
-      { key: '[CTRL] + RANDOM + Turn Knob', action: 'Appliquer du slew (lissage) sur la lane random du paramètre' },
-      { key: '[CTRL] + Turn RATE', action: 'Régler la division/vitesse de la séquence random' },
+      { key: 'Hold RANDOM + Turn Knob', action: 'Régler l’intensité bi-polaire du paramètre ciblé' },
+      { key: 'Hold RANDOM + Press Knob + VBx', action: 'Régler finement et sélectionner la valeur de random du paramètre' },
+      { key: 'Hold RANDOM + Press Knob + VB8 / VB16', action: 'Décaler la phase de la séquence random (plus tôt / plus tard)' },
+      { key: 'CTRL + RANDOM + Turn Knob', action: 'Appliquer du slew (lissage) sur la lane random du paramètre' },
+      { key: 'CTRL + Turn RANDOM (RATE)', action: 'Régler la division/vitesse de la séquence random' },
     ],
     notes: 'Le manuel indique que TEMPO ne fait pas partie des paramètres randomisables.',
   },
@@ -324,6 +323,9 @@ export const BUTTONS = [
     description: 'Modificateur performance temporaire: Hold [TEMP] + Turn (param) applique une variation momentanée. Relâcher [TEMP] restaure la valeur d’origine.',
     shortcuts: [
       { key: 'Hold [TEMP] + Turn (param)', action: 'Modifier temporairement un paramètre' },
+      { key: 'Hold [TEMP] + [PATTERN] + Turn (param)', action: 'Modifier relativement les paramètres à l’échelle du pattern' },
+      { key: 'Double-tap [TEMP]', action: 'Verrouiller la sélection TEMP active' },
+      { key: 'Hold [TEMP] + [PATTERN] + [VBx]', action: 'Sauver les changements temporaires vers le pattern x' },
     ],
     notes: 'Idéal en live pour faire un break/sweep puis revenir instantanément au réglage de base, sans réécrire la valeur définitive.',
   },
@@ -332,6 +334,8 @@ export const BUTTONS = [
     description: 'Contrôle de mute des tracks. Hold [MUTE] + [VBx] prépare un toggle de mute, appliqué au relâchement. [CTRL]+[MUTE]+[VBx] applique un mute/unmute immédiat.',
     shortcuts: [
       { key: 'Hold [MUTE] + [VBx]', action: 'Muter / démuter (appliqué au relâchement)' },
+      { key: 'Release [MUTE]', action: 'Appliquer l’action préparée sur les tracks ciblées' },
+      { key: 'Double-tap [MUTE]', action: 'Verrouiller la sélection mute active' },
       { key: '[CTRL] + [MUTE] + [VBx]', action: 'Quick mute / unmute immédiat' },
     ],
   },

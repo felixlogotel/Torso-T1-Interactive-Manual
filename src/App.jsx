@@ -277,7 +277,7 @@ export default function App() {
 
         {tab === 'quickref' && (
           <div className="anim-fade-up">
-            <QuickRef />
+            <QuickRef onNavigateControl={openControlById} />
           </div>
         )}
 

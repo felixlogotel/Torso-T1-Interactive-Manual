@@ -1,0 +1,132 @@
+.quickref-page {
+  display: grid;
+  gap: 14px;
+}
+
+.quickref-hero {
+  display: grid;
+  gap: 6px;
+}
+
+.quickref-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.quickref-subtitle {
+  font-size: 17px;
+  color: var(--text-2);
+  line-height: 1.48;
+  max-width: 76ch;
+}
+
+.quickref-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 10px;
+}
+
+.quickref-card {
+  border: 1px solid color-mix(in oklab, var(--quickref-color) 32%, var(--border));
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.quickref-card-head {
+  padding: 12px 14px;
+  border-bottom: 1px solid color-mix(in oklab, var(--quickref-color) 24%, var(--border));
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--quickref-color) 16%, transparent),
+    color-mix(in oklab, var(--quickref-color) 6%, transparent)
+  );
+}
+
+.quickref-card-title {
+  font-size: 13px;
+  font-family: var(--font-mono);
+  letter-spacing: 1.4px;
+  color: color-mix(in oklab, var(--quickref-color) 70%, var(--text));
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.quickref-card-body {
+  padding: 6px 0;
+}
+
+.quickref-row {
+  display: grid;
+  grid-template-columns: minmax(0, 0.42fr) minmax(0, 0.58fr);
+  gap: 10px;
+  align-items: start;
+  padding: 10px 14px;
+  border-top: 1px solid var(--border);
+}
+
+.quickref-row:first-child {
+  border-top: 0;
+}
+
+.quickref-row-label {
+  font-size: 14px;
+  color: var(--text-2);
+  line-height: 1.4;
+}
+
+.quickref-row-keys {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.quickref-key-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.quickref-kbd {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  border: 1px solid color-mix(in oklab, var(--quickref-color) 40%, var(--border-2));
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 12px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  line-height: 1;
+  color: color-mix(in oklab, var(--quickref-color) 78%, #ffffff 22%);
+  background: color-mix(in oklab, var(--quickref-color) 14%, var(--surface-2));
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+}
+
+.quickref-key-sep {
+  font-size: 12px;
+  color: var(--text-4);
+  font-family: var(--font-mono);
+}
+
+.quickref-note {
+  font-size: 12px;
+  color: var(--text-3);
+  font-family: var(--font-mono);
+  line-height: 1.25;
+}
+
+@media (max-width: 900px) {
+  .quickref-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .quickref-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+}

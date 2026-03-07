@@ -30,6 +30,347 @@ const USAGE_HINTS = {
   SCALE: 'Choisis d’abord SCALE/ROOT pour verrouiller l’univers harmonique, puis travaille PITCH/VOICING.',
 }
 
+const VBX_COLOR_MAP = Object.freeze({
+  off: { label: 'Off' },
+  white: { label: 'White' },
+  orange: { label: 'Orange' },
+  cyan: { label: 'Cyan' },
+  magenta: { label: 'Magenta' },
+  blueGrey: { label: 'Blue Grey' },
+  darkBlue: { label: 'Dark Blue' },
+  blue: { label: 'Blue' },
+  brightBlue: { label: 'Bright Blue' },
+  dimmedBlue: { label: 'Dimmed Blue' },
+  darkGreen: { label: 'Dark Green' },
+  green: { label: 'Green' },
+  pink: { label: 'Pink' },
+  red: { label: 'Red' },
+})
+
+const VBX_REFERENCE_FAMILIES = [
+  {
+    id: 'global',
+    title: 'Global Views',
+    modes: [
+      {
+        title: 'Tracks',
+        entries: [
+          { name: 'Note Track', detail: 'Active Track', color: 'orange' },
+          { name: 'CC Track', detail: 'Active Track', color: 'cyan' },
+          { name: 'FX Track', detail: 'Active Track', color: 'magenta' },
+          { name: 'Track', detail: 'Muted', color: 'blueGrey' },
+          { name: 'Tracks', detail: 'Not Selected', color: 'off' },
+        ],
+      },
+      {
+        title: 'Pattern',
+        entries: [
+          { name: 'Pattern', detail: 'Active / Queued', color: 'white' },
+          { name: 'Pattern', detail: 'Empty Pattern', color: 'darkBlue' },
+          { name: 'Pattern', detail: 'Edited Pattern', color: 'blue' },
+          { name: 'Chained', detail: 'Pending Play', color: 'brightBlue' },
+          { name: 'Playing Pattern', detail: 'Flashing', color: 'white', flashing: true },
+        ],
+      },
+      {
+        title: 'Bank',
+        entries: [
+          { name: 'Bank', detail: 'Active Bank', color: 'white' },
+          { name: 'Bank', detail: 'Empty Bank', color: 'darkGreen' },
+          { name: 'Bank', detail: 'Saved Bank', color: 'green' },
+          { name: 'Edited', detail: 'Unsaved', color: 'pink' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'shape',
+    title: 'Shape',
+    modes: [
+      {
+        title: 'Shape - Euclidean (Step View)',
+        entries: [
+          { name: 'Steps', detail: 'Active Steps', color: 'dimmedBlue' },
+          { name: 'Pulses', detail: 'Note Pulses', color: 'blueGrey' },
+          { name: 'Playhead', detail: 'Position', color: 'white' },
+        ],
+      },
+      {
+        title: 'Shape - Euclidean (Pulse View)',
+        entries: [
+          { name: 'Steps', detail: 'Active Steps', color: 'blueGrey' },
+          { name: 'Pulses', detail: 'Note Pulses', color: 'orange' },
+        ],
+      },
+      {
+        title: 'Shape - Division',
+        entries: [
+          { name: 'Note Value', detail: 'Quadruplets', color: 'blueGrey' },
+          { name: 'Note Value', detail: 'Triplets', color: 'blue' },
+          { name: 'Division', detail: 'Active Div', color: 'white' },
+          { name: 'Division', detail: 'Free Running', color: 'pink' },
+        ],
+      },
+      {
+        title: 'Shape - Cycles',
+        entries: [
+          { name: 'Cycle', detail: 'Number', color: 'blueGrey' },
+          { name: 'Cycle', detail: 'Playing Cycle', color: 'white' },
+          { name: 'Playing Cycle', detail: 'Active Cycle', color: 'blueGrey', flashing: true },
+          { name: 'Cycle', detail: 'Edited', color: 'red' },
+        ],
+      },
+      {
+        title: 'Shape - Repeats',
+        entries: [
+          { name: 'Repeats', detail: 'Number', color: 'blueGrey' },
+          { name: 'Repeats', detail: 'Infinite', color: 'blue' },
+          { name: 'Page', detail: 'Repeat Page', color: 'orange' },
+          { name: 'Repeat', detail: 'Active', color: 'white' },
+        ],
+      },
+      {
+        title: 'Shape - Repeat Mode',
+        entries: [
+          { name: 'Choke Mode', detail: 'Top Button', color: 'pink' },
+          { name: 'Tail Mode', detail: 'Bottom Button', color: 'pink' },
+        ],
+      },
+      {
+        title: 'Shape - Repeats Time',
+        entries: [
+          { name: 'Repeat Time', detail: 'Quadruplets', color: 'blueGrey' },
+          { name: 'Repeat Time', detail: 'Triplets', color: 'blue' },
+          { name: 'Repeat Time', detail: 'Active Time', color: 'white' },
+          { name: 'Quantize', detail: 'Time', color: 'pink' },
+        ],
+      },
+      {
+        title: 'Shape - Repeat Pace',
+        entries: [
+          { name: 'Pace', detail: 'Fine Resolution', color: 'blueGrey' },
+          { name: 'Pace', detail: 'Active Fine Res', color: 'white' },
+          { name: 'Pace', detail: 'Active Course', color: 'orange' },
+        ],
+      },
+      {
+        title: 'Shape - Voicing',
+        entries: [
+          { name: 'Order Up', detail: 'Top Button', color: 'pink' },
+          { name: 'Order Down', detail: 'Bottom Button', color: 'pink' },
+          { name: 'Note Order', detail: 'Active', color: 'white' },
+          { name: 'Note Order', detail: 'Selection Page', color: 'orange' },
+        ],
+      },
+      {
+        title: 'Shape - Style',
+        entries: [
+          { name: 'Poly Styles', detail: 'Top 3 Btns', color: 'darkGreen' },
+          { name: 'Mono Styles', detail: 'Bottom 3 Btns', color: 'darkGreen' },
+        ],
+      },
+      {
+        title: 'Shape - Phrase',
+        entries: [
+          { name: 'Cadence', detail: 'Top 4 Btns', color: 'darkGreen' },
+          { name: "LFO's", detail: 'Bottom 4 Btns', color: 'darkGreen' },
+          { name: 'Phrase', detail: 'CV Controlled', color: 'pink' },
+          { name: 'Phrase / Style', detail: 'Active', color: 'white' },
+        ],
+      },
+      {
+        title: 'Shape - Range',
+        entries: [
+          { name: 'Rate x2', detail: 'Top Button', color: 'pink' },
+          { name: 'Rate /2', detail: 'Bottom Button', color: 'pink' },
+          { name: 'Pitch Variation', detail: 'Active', color: 'white' },
+          { name: 'Pitch Variation', detail: 'Selection Page', color: 'orange' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'groove',
+    title: 'Groove',
+    modes: [
+      {
+        title: 'Groove (Velocity / Sustain)',
+        entries: [
+          { name: 'Velocity', detail: 'Active 0-127', color: 'blueGrey' },
+          { name: 'Sustain', detail: 'Lit Active', color: 'blueGrey' },
+        ],
+      },
+      {
+        title: 'Groove Probability',
+        entries: [
+          { name: 'Note Phase', detail: 'Notes to Silence', color: 'pink' },
+          { name: 'Probability', detail: 'Active', color: 'white' },
+          { name: 'Probability', detail: 'Selection Page', color: 'orange' },
+        ],
+      },
+      {
+        title: 'Groove - Accent',
+        entries: [
+          { name: 'Accent', detail: 'Top Button', color: 'pink' },
+          { name: 'Accent', detail: 'Bottom Button', color: 'pink' },
+          { name: 'Accent', detail: 'Active', color: 'white' },
+          { name: 'Accent', detail: 'Selection Page', color: 'orange' },
+        ],
+      },
+      {
+        title: 'Groove',
+        entries: [
+          { name: 'Groove 1-4', detail: 'Top Buttons', color: 'darkGreen' },
+          { name: 'Groove 5-8', detail: 'Bottom Buttons', color: 'darkGreen' },
+          { name: 'Groove', detail: 'CV Control', color: 'pink' },
+        ],
+      },
+      {
+        title: 'Groove - Timing',
+        entries: [
+          { name: 'Micro-Timing', detail: 'Sub-divisions', color: 'pink' },
+          { name: 'Micro-Timing', detail: 'Active', color: 'white' },
+          { name: 'Micro-Timing', detail: 'Course Adjust', color: 'orange' },
+          { name: 'Micro-Timing', detail: 'Fine Adjust', color: 'blueGrey' },
+        ],
+      },
+      {
+        title: 'Groove - Delay',
+        entries: [
+          { name: 'Delay', detail: 'Active', color: 'white' },
+          { name: 'Delay', detail: 'Fixed Intervals', color: 'orange' },
+          { name: 'Delay', detail: '+/- Options', color: 'blueGrey' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'tonal',
+    title: 'Tonal',
+    modes: [
+      {
+        title: 'Tonal - Pitch',
+        entries: [
+          { name: 'Pitch Notes', detail: 'Black Keys', color: 'blue' },
+          { name: 'Pitch Notes', detail: 'White Keys', color: 'white' },
+          { name: 'Pitch Notes', detail: 'Selected', color: 'orange' },
+          { name: 'Notes', detail: 'Out of Scale', color: 'blueGrey' },
+          { name: 'Octave', detail: 'Up / Down', color: 'pink' },
+        ],
+      },
+      {
+        title: 'Tonal - Scale',
+        entries: [
+          { name: 'Scale', detail: 'Active', color: 'white' },
+          { name: 'Scales', detail: 'Chro, Maj, Min', color: 'blueGrey' },
+          { name: 'Scales', detail: 'Other Scales', color: 'blue' },
+          { name: 'Scale', detail: 'User Defined', color: 'pink' },
+        ],
+      },
+      {
+        title: 'Tonal - Root',
+        entries: [
+          { name: 'Root Note', detail: 'Selected', color: 'pink' },
+          { name: 'Notes', detail: 'Black Keys', color: 'blue' },
+          { name: 'Notes', detail: 'White Keys', color: 'white' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'setup-randomness',
+    title: 'Setup + Randomness',
+    modes: [
+      {
+        title: 'Randomness',
+        entries: [
+          { name: 'Mod Sequence Amount', detail: 'Amount', color: 'pink' },
+          { name: 'Modulation', detail: 'Phase Shift', color: 'blueGrey' },
+          { name: 'Mod Range', detail: '-100% to 100%', color: 'pink' },
+          { name: 'Modulation', detail: 'Active Amount', color: 'white' },
+        ],
+      },
+      {
+        title: 'Randomness - Rate',
+        entries: [
+          { name: 'Random Rate', detail: 'Quadruplets', color: 'blueGrey' },
+          { name: 'Random Rate', detail: 'Triplets', color: 'pink' },
+          { name: 'Rate', detail: 'Active', color: 'white' },
+        ],
+      },
+      {
+        title: 'Setup - Length',
+        entries: [
+          { name: 'Length', detail: 'In Bars', color: 'green' },
+          { name: 'Length', detail: 'Bar Divisions', color: 'darkGreen' },
+          { name: 'Length', detail: 'Active', color: 'white' },
+          { name: 'Length', detail: 'Infinite', color: 'blue' },
+        ],
+      },
+      {
+        title: 'Setup - Quantize',
+        entries: [
+          { name: 'Quantize', detail: 'In Bars', color: 'green' },
+          { name: 'Quantize', detail: 'Bar Divisions', color: 'darkGreen' },
+          { name: 'Quantize', detail: 'Active', color: 'white' },
+        ],
+      },
+      {
+        title: 'Setup - Channel',
+        entries: [
+          { name: 'MIDI Channel', detail: 'Active', color: 'white' },
+          { name: 'MIDI Channel', detail: 'Available', color: 'darkGreen' },
+        ],
+      },
+      {
+        title: 'Tempo',
+        entries: [{ name: 'Tempo', detail: 'Active', color: 'blueGrey' }],
+      },
+    ],
+  },
+]
+
+const MANUAL_BASE_URL = 'http://downloads.torsoelectronics.com/t-1/manual/T-1%20User%20Manual.pdf'
+const MANUAL_PAGE_BY_CONTROL = Object.freeze({
+  STEPS: 60,
+  PULSES: 60,
+  CYCLES: 144,
+  DIVISION: 68,
+  VELOCITY: 84,
+  SUSTAIN: 81,
+  REPEATS: 100,
+  TIME: 101,
+  ACCENT: 86,
+  TIMING: 91,
+  PITCH: 112,
+  VOICING: 128,
+  RANGE: 136,
+  SCALE: 118,
+  TEMPO: 38,
+  LENGTH: 70,
+  CHANNEL: 44,
+  RANDOM: 152,
+  PLAY: 34,
+  BANK: 35,
+  PATTERN: 55,
+  CTRL: 34,
+  CLEAR: 39,
+  TEMP: 141,
+  MUTE: 72,
+  VB: 57,
+})
+
+function getDocReference(item) {
+  const primaryLabel = item.id
+  const primaryPage = MANUAL_PAGE_BY_CONTROL[primaryLabel]
+  if (!primaryPage) return null
+
+  return {
+    href: `${MANUAL_BASE_URL}#page=${primaryPage}`,
+    title: `Manual reference (${primaryLabel}: p.${primaryPage})`,
+  }
+}
+
 function normalizeDescriptionText(text) {
   if (!text) return ''
   return normalizeControlText(text).replace(/\[([^[\]]+)\]/g, '$1')
@@ -166,6 +507,36 @@ function SequencerStrip({
   )
 }
 
+function SequencerGrid2x8({
+  pulseSteps = new Set(),
+  manualSteps = new Set(),
+}) {
+  const rows = [Array.from({ length: 8 }, (_, i) => i), Array.from({ length: 8 }, (_, i) => i + 8)]
+
+  return (
+    <div className="exp-seq-grid-wrap">
+      {rows.map((row, rowIndex) => (
+        <div key={`grid-row-${rowIndex}`} className="exp-seq-grid-row">
+          {row.map((index) => {
+            const isPulse = pulseSteps.has(index)
+            const isManual = manualSteps.has(index)
+            return (
+              <span
+                key={`grid-cell-${index}`}
+                className={[
+                  'exp-seq-cell',
+                  isPulse ? 'is-pulse' : '',
+                  isManual ? 'is-manual' : '',
+                ].filter(Boolean).join(' ')}
+              />
+            )
+          })}
+        </div>
+      ))}
+    </div>
+  )
+}
+
 function StepsVisual() {
   const stepRows = [
     { label: '8 steps · cycle court', activeSteps: 8 },
@@ -181,7 +552,7 @@ function StepsVisual() {
   ]
 
   return (
-    <div className="exp-repeat-wrap">
+    <div className="exp-repeat-wrap exp-random-wrap">
       <div className="exp-repeat-grid">
         <div className="exp-repeat-card exp-steps-length-card">
           <div className="exp-repeat-card-title">STEPS · longueur du pattern</div>
@@ -216,11 +587,11 @@ function StepsVisual() {
 }
 
 function PulsesVisual() {
-  const euclid3 = buildEuclideanStepSet(16, 3)
-  const euclid5 = buildEuclideanStepSet(16, 5)
-  const euclid5Rot = buildEuclideanStepSet(16, 5, 2)
-  const euclid7 = buildEuclideanStepSet(16, 7)
-  const manualSteps = new Set([1, 8])
+  const twoPulses = new Set([0, 8]) // steps 1 and 9
+  const threePulses = new Set([0, 6, 11]) // steps 1, 7 and 12
+  const threePulsesRot2 = new Set(Array.from(threePulses, (step) => wrapGridStep(step + 2, 16)))
+  const manualBaseSteps = new Set([2, 12]) // manual additions (VBx), fixed before rotate
+  const manualRot2Steps = new Set(Array.from(manualBaseSteps, (step) => wrapGridStep(step + 2, 16)))
 
   return (
     <div className="exp-repeat-wrap exp-pulses-wrap">
@@ -229,35 +600,39 @@ function PulsesVisual() {
           <div className="exp-repeat-card-title">PULSES · distribution euclidienne</div>
           <div className="exp-shape-stack">
             <div className="exp-shape-row">
-              <span className="exp-time-label">3 pulses sur 16</span>
-              <SequencerStrip totalSteps={16} pulseSteps={euclid3} />
+              <span className="exp-time-label">2 pulses</span>
+              <SequencerGrid2x8 pulseSteps={twoPulses} />
             </div>
             <div className="exp-shape-row">
-              <span className="exp-time-label">5 pulses sur 16</span>
-              <SequencerStrip totalSteps={16} pulseSteps={euclid5} />
+              <span className="exp-time-label">3 Pulses</span>
+              <SequencerGrid2x8 pulseSteps={threePulses} />
             </div>
             <div className="exp-shape-row">
-              <span className="exp-time-label">ROTATE +2 (CTRL + PULSES)</span>
-              <SequencerStrip totalSteps={16} pulseSteps={euclid5Rot} />
+              <span className="exp-time-label">Rotate +2</span>
+              <SequencerGrid2x8 pulseSteps={threePulsesRot2} />
             </div>
           </div>
         </div>
 
         <div className="exp-repeat-card">
-          <div className="exp-repeat-card-title">PULSES · euclidien vs manuel</div>
+          <div className="exp-repeat-card-title">PULSES · euclidien + ajouts manuels</div>
           <div className="exp-shape-stack">
             <div className="exp-shape-row">
-              <span className="exp-time-label">Avant: Euclid 5 + pulses manuels</span>
-              <SequencerStrip totalSteps={16} pulseSteps={euclid5} manualSteps={manualSteps} />
+              <span className="exp-time-label">2 pulses + manuels</span>
+              <SequencerGrid2x8 pulseSteps={twoPulses} manualSteps={manualBaseSteps} />
             </div>
             <div className="exp-shape-row">
-              <span className="exp-time-label">Après Turn + PULSES: Euclid 7 + manuels inchangés</span>
-              <SequencerStrip totalSteps={16} pulseSteps={euclid7} manualSteps={manualSteps} />
+              <span className="exp-time-label">3 Pulses + manuels</span>
+              <SequencerGrid2x8 pulseSteps={threePulses} manualSteps={manualBaseSteps} />
+            </div>
+            <div className="exp-shape-row">
+              <span className="exp-time-label">Rotate +2 + manuels</span>
+              <SequencerGrid2x8 pulseSteps={threePulsesRot2} manualSteps={manualRot2Steps} />
             </div>
           </div>
           <div className="exp-shape-legend">
             <span className="exp-shape-legend-item"><i className="is-pulse" />Euclidien</span>
-            <span className="exp-shape-legend-item"><i className="is-manual" />Manuel (VBx)</span>
+            <span className="exp-shape-legend-item"><i className="is-manual" />Manuel</span>
           </div>
         </div>
       </div>
@@ -265,16 +640,17 @@ function PulsesVisual() {
   )
 }
 
-function CyclesVisual() {
+function CyclesVisual({ onNavigateControl }) {
   const activeCycles = new Set([0, 1, 2, 3])
   const editedCycles = new Set([2])
   const currentCycle = 1
   const workflow = [
-    { step: '1', title: 'Ouvrir la vue CYCLES', detail: 'Hold ou double-tap CYCLES' },
-    { step: '2', title: 'Sélectionner cycle à éditer', detail: 'Press VBx en vue CYCLES (plusieurs possibles)' },
-    { step: '3', title: 'BANK passe en rouge', detail: 'Le cycle sélectionné clignote et boucle' },
-    { step: '4', title: 'Tourner les paramètres', detail: 'Ex: PITCH, REPEATS... valeurs lockées dans le cycle' },
-    { step: '5', title: 'Sortir de l’édition', detail: 'Press BANK pour revenir au playback normal' },
+    { step: '1', title: 'Se placer en vue TRACK', detail: 'Dans la BANK et le PATTERN actifs, sélectionner la track à éditer.' },
+    { step: '2', title: 'Ouvrir la vue CYCLES', detail: 'Hold ou double-tap CYCLES' },
+    { step: '3', title: 'Sélectionner cycle à éditer', detail: 'Press VBx en vue CYCLES (plusieurs possibles)' },
+    { step: '4', title: 'BANK passe en rouge', detail: 'Le cycle sélectionné clignote et boucle' },
+    { step: '5', title: 'Éditer ce que vous souhaitez', detail: 'Ex: PITCH, ajout de note... les valeurs sont lockées dans le cycle' },
+    { step: '6', title: 'Sortir de l’édition', detail: 'Press BANK pour revenir à la vue track normale' },
   ]
 
   return (
@@ -302,29 +678,37 @@ function CyclesVisual() {
               )
             })}
           </div>
-          <div className="exp-shape-legend">
+          <div className="exp-shape-legend is-cycles">
             <span className="exp-shape-legend-item"><i className="is-cycle-current" />Cycle courant</span>
             <span className="exp-shape-legend-item"><i className="is-active" />Actif</span>
-            <span className="exp-shape-legend-item"><i className="is-edited" />Édité</span>
+            <span className="exp-shape-legend-item"><i className="is-edited" />Éditions</span>
             <span className="exp-shape-legend-item"><i className="is-inactive" />Inactif</span>
+          </div>
+          <div className="exp-cycles-legend-divider" aria-hidden="true" />
+          <div className="exp-cycles-count-note">
+            <InlineControlText
+              text="Nombre de cycles: CTRL + Turn + CYCLES ou CTRL + CYCLES + VBx (1 à 16)."
+              onNavigateControl={onNavigateControl}
+            />
           </div>
         </div>
 
         <div className="exp-repeat-card">
           <div className="exp-repeat-card-title">CYCLES · workflow d’édition</div>
-          <div className="exp-cycle-flow">
+          <div className="exp-cycle-flow is-cycles-workflow">
             {workflow.map((item) => (
               <div key={item.step} className="exp-cycle-flow-item">
                 <span className="exp-cycle-flow-step">{item.step}</span>
                 <div className="exp-cycle-flow-text">
-                  <span className="exp-cycle-flow-title">{item.title}</span>
-                  <span className="exp-cycle-flow-detail">{item.detail}</span>
+                  <span className="exp-cycle-flow-title">
+                    <InlineControlText text={item.title} onNavigateControl={onNavigateControl} />
+                  </span>
+                  <span className="exp-cycle-flow-detail">
+                    <InlineControlText text={item.detail} onNavigateControl={onNavigateControl} />
+                  </span>
                 </div>
               </div>
             ))}
-          </div>
-          <div className="exp-style-note">
-            Nombre de cycles: CTRL + Turn + CYCLES ou CTRL + CYCLES + VBx (1 à 16).
           </div>
         </div>
       </div>
@@ -332,7 +716,7 @@ function CyclesVisual() {
   )
 }
 
-function DivisionVisual() {
+function DivisionVisual({ onNavigateControl }) {
   const divisionMap = {
     1: '1/1',
     2: '1/2',
@@ -363,7 +747,7 @@ function DivisionVisual() {
   return (
     <div className="exp-repeat-wrap">
       <div className="exp-repeat-grid">
-        <div className="exp-repeat-card">
+        <div className="exp-repeat-card exp-division-select-card">
           <div className="exp-repeat-card-title">DIVISION · sélection sur clavier VB</div>
           <div className="exp-division-keyboard">
             {keyboardRows.map((row, rowIndex) => (
@@ -377,52 +761,67 @@ function DivisionVisual() {
               </div>
             ))}
           </div>
-          <div className="exp-shape-legend">
+          <div className="exp-shape-legend is-division">
             <span className="exp-shape-legend-item"><i className="is-division-quad" />Quadruplets</span>
             <span className="exp-shape-legend-item"><i className="is-division-triplet" />Triplets</span>
             <span className="exp-shape-legend-item"><i className="is-division-unused" />Sans fonction directe</span>
+          </div>
+          <div className="exp-division-legend-divider" aria-hidden="true" />
+          <div className="exp-division-shortcuts-note">
+            <InlineControlText
+              text="Sélection rapide: Turn + DIVISION ou press VBx. Mode libre 96 PPQN: CTRL + Turn + DIVISION."
+              onNavigateControl={onNavigateControl}
+            />
           </div>
         </div>
 
         <div className="exp-repeat-card">
           <div className="exp-repeat-card-title">DIVISION · impact et mode libre</div>
           <div className="exp-division-impact">
-            <span>À tempo identique, une division plus fine augmente la densité rythmique perçue.</span>
-            <span>STEPS/PULSES/REPEATS gardent leur structure, mais leur durée réelle change avec DIVISION.</span>
-            <span>SUSTAIN est directement calculé relativement à DIVISION.</span>
-            <span>DELAY se lit en valeurs de note (1/16, 1/8, 1/4) dans ce contexte rythmique.</span>
+            <span>À tempo identique, une division plus fine augmente la densité rythmique perçue. STEPS/PULSES/REPEATS gardent leur structure, mais leur durée réelle change avec DIVISION.</span>
           </div>
-          <div className="exp-cycle-flow">
+          <div className="exp-cycle-flow is-cycles-workflow">
             <div className="exp-cycle-flow-item">
               <span className="exp-cycle-flow-step">1</span>
               <div className="exp-cycle-flow-text">
-                <span className="exp-cycle-flow-title">Voir la division active</span>
-                <span className="exp-cycle-flow-detail">Hold ou double-tap DIVISION</span>
+                <span className="exp-cycle-flow-title">
+                  <InlineControlText text="Voir la division active" onNavigateControl={onNavigateControl} />
+                </span>
+                <span className="exp-cycle-flow-detail">
+                  <InlineControlText text="Hold ou double-tap DIVISION" onNavigateControl={onNavigateControl} />
+                </span>
               </div>
             </div>
             <div className="exp-cycle-flow-item">
               <span className="exp-cycle-flow-step">2</span>
               <div className="exp-cycle-flow-text">
-                <span className="exp-cycle-flow-title">Sélection rapide</span>
-                <span className="exp-cycle-flow-detail">Turn + DIVISION ou press VBx</span>
+                <span className="exp-cycle-flow-title">
+                  <InlineControlText text="Sélection rapide" onNavigateControl={onNavigateControl} />
+                </span>
+                <span className="exp-cycle-flow-detail">
+                  <InlineControlText text="Turn + DIVISION ou press VBx" onNavigateControl={onNavigateControl} />
+                </span>
               </div>
             </div>
             <div className="exp-cycle-flow-item">
               <span className="exp-cycle-flow-step">3</span>
               <div className="exp-cycle-flow-text">
-                <span className="exp-cycle-flow-title">Mode libre 96 PPQN</span>
-                <span className="exp-cycle-flow-detail">CTRL + Turn + DIVISION (statut blanc clignotant)</span>
+                <span className="exp-cycle-flow-title">
+                  <InlineControlText text="Mode libre 96 PPQN" onNavigateControl={onNavigateControl} />
+                </span>
+                <span className="exp-cycle-flow-detail">
+                  <InlineControlText text="CTRL + Turn + DIVISION (statut blanc clignotant)" onNavigateControl={onNavigateControl} />
+                </span>
               </div>
             </div>
           </div>
-          <div className="exp-style-note">Depuis v2.1.0: RANDOM RATE et TIME ne suivent plus DIVISION.</div>
         </div>
       </div>
     </div>
   )
 }
 
-function TempoVisual() {
+function TempoVisual({ onNavigateControl }) {
   const workflow = [
     { step: '1', title: 'Voir le tempo', detail: 'Hold ou double-tap TEMPO' },
     { step: '2', title: 'Ajustement fin', detail: 'Turn + TEMPO: 1 BPM par cran' },
@@ -434,13 +833,17 @@ function TempoVisual() {
     <div className="exp-repeat-wrap">
       <div className="exp-repeat-card exp-tempo-edit-card">
         <div className="exp-repeat-card-title">TEMPO · édition</div>
-        <div className="exp-cycle-flow exp-tempo-edit-flow">
+        <div className="exp-cycle-flow exp-tempo-edit-flow is-cycles-workflow">
           {workflow.map((item) => (
             <div key={item.step} className="exp-cycle-flow-item">
               <span className="exp-cycle-flow-step">{item.step}</span>
               <div className="exp-cycle-flow-text">
-                <span className="exp-cycle-flow-title">{item.title}</span>
-                <span className="exp-cycle-flow-detail">{item.detail}</span>
+                <span className="exp-cycle-flow-title">
+                  <InlineControlText text={item.title} onNavigateControl={onNavigateControl} />
+                </span>
+                <span className="exp-cycle-flow-detail">
+                  <InlineControlText text={item.detail} onNavigateControl={onNavigateControl} />
+                </span>
               </div>
             </div>
           ))}
@@ -518,97 +921,150 @@ function PlayButtonVisual({ onNavigateControl }) {
 }
 
 function TempButtonVisual({ onNavigateControl }) {
-  const rows = [
-    { label: 'Valeur normale', values: [14, 14, 14, 14, 14, 14, 14, 14] },
-    { label: 'Hold TEMP + Turn + param', values: [14, 18, 22, 28, 28, 24, 18, 14] },
-    { label: 'Release TEMP', values: [14, 14, 14, 14, 14, 14, 14, 14] },
-  ]
-
-  const usages = [
-    { key: 'Hold [TEMP] + Turn (param)', action: 'Variation temporaire du paramètre' },
-    { key: 'Release [TEMP]', action: 'Retour immédiat à la valeur d’origine' },
-    { key: 'TEMP (perf)', action: 'Parfait pour break, fill ou montée ponctuelle' },
+  const workflow = [
+    { step: '1', title: 'Se placer en vue TRACK', detail: 'Press BANK puis sélectionner une ou plusieurs tracks (VBx).' },
+    { step: '2', title: 'Variation temporaire', detail: 'Hold TEMP + Turn + Knob.' },
+    { step: '3', title: 'Variation relative de pattern', detail: 'Hold TEMP + PATTERN + Turn + Knob.' },
+    { step: '4', title: 'Retour état initial', detail: 'Release TEMP restaure les valeurs d’origine.' },
+    { step: '5', title: 'Verrouiller TEMP (optionnel)', detail: 'Double-tap TEMP pour garder la sélection active.' },
+    { step: '6', title: 'Sauver les changements (optionnel)', detail: 'Hold TEMP + PATTERN + VBx pour enregistrer vers le pattern x.' },
   ]
 
   return (
     <div className="exp-repeat-wrap">
-      <div className="exp-repeat-grid">
-        <div className="exp-repeat-card">
-          <div className="exp-repeat-card-title">TEMP · modulation temporaire</div>
-          <div className="exp-temp-stack">
-            {rows.map((row) => (
-              <div key={row.label} className="exp-temp-row">
-                <span className="exp-time-label">{row.label}</span>
-                <div className="exp-temp-bars">
-                  {row.values.map((value, index) => (
-                    <span key={`${row.label}-${index}`} className="exp-temp-bar" style={{ height: `${value}px` }} />
-                  ))}
-                </div>
+      <div className="exp-repeat-card exp-tempo-edit-card">
+        <div className="exp-repeat-card-title">TEMP · workflow live</div>
+        <div className="exp-cycle-flow exp-tempo-edit-flow is-cycles-workflow">
+          {workflow.map((item) => (
+            <div key={item.step} className="exp-cycle-flow-item">
+              <span className="exp-cycle-flow-step">{item.step}</span>
+              <div className="exp-cycle-flow-text">
+                <span className="exp-cycle-flow-title">
+                  <InlineControlText text={item.title} onNavigateControl={onNavigateControl} />
+                </span>
+                <span className="exp-cycle-flow-detail">
+                  <InlineControlText text={item.detail} onNavigateControl={onNavigateControl} />
+                </span>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
-
-        <ButtonModeGrid
-          title="TEMP · usage pratique"
-          items={usages}
-          note="TEMP ne remplace pas l’édition permanente: c’est un modificateur de performance, relâché = valeur restaurée."
-          onNavigateControl={onNavigateControl}
-        />
       </div>
     </div>
   )
 }
 
 function MuteButtonVisual({ onNavigateControl }) {
-  const rows = [
-    { label: 'Tracks actives', muted: [] },
-    { label: 'Hold MUTE + VBx (toggle au relâchement)', muted: [2, 6, 11], armed: [2, 6, 11] },
-    { label: 'CTRL + MUTE + VBx (immédiat)', muted: [2, 6], armed: [6] },
+  const trackTypes = Array.from({ length: 16 }, (_, index) => {
+    const track = index + 1
+    if (track >= 13) return 'fx'
+    return 'note'
+  })
+
+  const stateRows = [
+    { label: 'Exemple: track note mutée', muted: [3], armed: [] },
+    { label: 'Exemple: track FX mutée', muted: [14], armed: [] },
   ]
 
-  const commands = [
-    { key: 'Hold [MUTE] + [VBx]', action: 'Préparer mute/unmute (appliqué au release)' },
-    { key: '[CTRL] + [MUTE] + [VBx]', action: 'Quick mute / unmute immédiat' },
-    { key: '[MUTE] (perf)', action: 'Contrôle live des tracks sans quitter le flux' },
+  const performanceFlow = [
+    { step: '1', title: 'Se placer en vue TRACK', detail: 'Press BANK puis sélectionner les tracks si besoin.' },
+    { step: '2', title: 'Préparer le mute', detail: 'Hold MUTE + Press VBx (multi-sélection possible).' },
+    { step: '3', title: 'MUTE clignote', detail: 'Les tracks ciblées sont armées pour l’action.' },
+    { step: '4', title: 'Release MUTE', detail: 'Le mute/unmute est appliqué aux tracks sélectionnées.' },
+  ]
+
+  const instantFlow = [
+    { step: '1', title: 'Mode instantané', detail: 'Hold CTRL + MUTE + Press VBx.' },
+    { step: '2', title: 'Application immédiate', detail: 'Le mute/unmute est actif sans attendre le release.' },
+    { step: '3', title: 'Repère visuel', detail: 'Les tracks mutées passent en BLUE GREY.' },
   ]
 
   return (
     <div className="exp-repeat-wrap">
-      <div className="exp-repeat-grid">
-        <div className="exp-repeat-card">
-          <div className="exp-repeat-card-title">MUTE · état des tracks</div>
-          <div className="exp-mute-stack">
-            {rows.map((row) => (
-              <div key={row.label} className="exp-mute-row">
+      <div className="exp-repeat-grid exp-mute-grid">
+        <div className="exp-repeat-card exp-mute-view-card">
+          <div className="exp-repeat-card-title">MUTE · état des tracks (vue TRACK)</div>
+          <div className="exp-mute-vb-stack">
+            {stateRows.map((row) => (
+              <div key={row.label} className="exp-mute-vb-row-block">
                 <span className="exp-time-label">{row.label}</span>
-                <div className="exp-mute-strip">
-                  {Array.from({ length: 16 }, (_, index) => {
-                    const trackIndex = index + 1
-                    const isMuted = row.muted.includes(trackIndex)
-                    const isArmed = row.armed?.includes(trackIndex)
-                    return (
-                      <span
-                        key={`${row.label}-${trackIndex}`}
-                        className={`exp-mute-cell ${isMuted ? 'is-muted' : ''} ${isArmed ? 'is-armed' : ''}`}
-                      />
-                    )
-                  })}
+                <div className="exp-mute-vb-grid">
+                  {[0, 1].map((line) => (
+                    <div key={`${row.label}-line-${line + 1}`} className="exp-mute-vb-line">
+                      {Array.from({ length: 8 }, (_, col) => {
+                        const index = line * 8 + col
+                        const trackIndex = index + 1
+                        const baseTone = trackTypes[index]
+                        const isMuted = row.muted.includes(trackIndex)
+                        const isArmed = row.armed.includes(trackIndex)
+                        return (
+                          <span
+                            key={`${row.label}-${trackIndex}`}
+                            className={[
+                              'exp-mute-vb-cell',
+                              `is-${baseTone}`,
+                              isMuted ? 'is-muted' : '',
+                              isArmed ? 'is-armed' : '',
+                            ].filter(Boolean).join(' ')}
+                          >
+                            {trackIndex}
+                          </span>
+                        )
+                      })}
+                    </div>
+                  ))}
                 </div>
               </div>
             ))}
           </div>
-          <div className="exp-shape-legend">
-            <span className="exp-shape-legend-item"><i className="is-muted-track" />Track mutée</span>
-            <span className="exp-shape-legend-item"><i className="is-armed-track" />Track ciblée</span>
+          <div className="exp-shape-legend is-mute">
+            <span className="exp-shape-legend-item"><i className="is-mute-note" />Track note</span>
+            <span className="exp-shape-legend-item"><i className="is-mute-fx" />Track FX</span>
+            <span className="exp-shape-legend-item"><i className="is-muted-track" />Mutée</span>
           </div>
         </div>
 
-        <ButtonModeGrid
-          title="MUTE · commandes"
-          items={commands}
-          onNavigateControl={onNavigateControl}
-        />
+        <div className="exp-repeat-card">
+          <div className="exp-repeat-card-title">MUTE · workflow live</div>
+
+          <div className="exp-mute-flow-group">
+            <span className="exp-mute-flow-heading">Instant Muting</span>
+            <div className="exp-cycle-flow is-cycles-workflow">
+              {instantFlow.map((item) => (
+                <div key={`instant-${item.step}`} className="exp-cycle-flow-item">
+                  <span className="exp-cycle-flow-step">{item.step}</span>
+                  <div className="exp-cycle-flow-text">
+                    <span className="exp-cycle-flow-title">
+                      <InlineControlText text={item.title} onNavigateControl={onNavigateControl} />
+                    </span>
+                    <span className="exp-cycle-flow-detail">
+                      <InlineControlText text={item.detail} onNavigateControl={onNavigateControl} />
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="exp-mute-flow-group is-separated">
+            <span className="exp-mute-flow-heading">Performance Muting</span>
+            <div className="exp-cycle-flow is-cycles-workflow">
+              {performanceFlow.map((item) => (
+                <div key={`perf-${item.step}`} className="exp-cycle-flow-item">
+                  <span className="exp-cycle-flow-step">{item.step}</span>
+                  <div className="exp-cycle-flow-text">
+                    <span className="exp-cycle-flow-title">
+                      <InlineControlText text={item.title} onNavigateControl={onNavigateControl} />
+                    </span>
+                    <span className="exp-cycle-flow-detail">
+                      <InlineControlText text={item.detail} onNavigateControl={onNavigateControl} />
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )
@@ -648,11 +1104,6 @@ function BankPatternHierarchyVisual({ focus = 'bank', onNavigateControl }) {
       : [{ type: 'node', level }]
   ))
 
-  const focusLabel = focus === 'pattern' ? 'PATTERN' : 'BANK'
-  const focusCopy = focus === 'pattern'
-    ? 'Tu es ici: PATTERN dans la BANK active. [QUANTIZE] est stocké au niveau PATTERN.'
-    : 'Tu es ici: BANK (niveau organisation). [TEMPO] est stocké au niveau BANK.'
-
   return (
     <div className="exp-repeat-wrap">
       <div className="exp-repeat-card exp-bank-pattern-card">
@@ -680,13 +1131,6 @@ function BankPatternHierarchyVisual({ focus = 'bank', onNavigateControl }) {
               </div>
             )
           ))}
-        </div>
-
-        <div className="exp-bank-pattern-focus">
-          <span className="exp-bank-pattern-focus-chip">Section active: {focusLabel}</span>
-          <span className="exp-bank-pattern-focus-text">
-            <InlineControlText text={focusCopy} onNavigateControl={onNavigateControl} />
-          </span>
         </div>
       </div>
     </div>
@@ -738,226 +1182,261 @@ function CtrlButtonVisual({ onNavigateControl }) {
 }
 
 function ClearButtonVisual({ onNavigateControl }) {
-  const clearTargets = [
-    { key: '[CLEAR] + [VBx]', action: 'Effacer track' },
-    { key: '[CLEAR] + [PATTERN] + [VBx]', action: 'Effacer pattern' },
-    { key: '[CLEAR] + [BANK] + [VBx] + [VBx]', action: 'Effacer bank (double confirmation)' },
+  const clearFlow = [
+    { step: '1', title: 'Choisir la cible', detail: 'Hold CLEAR + VBx (track), ou CLEAR + PATTERN + VBx, ou CLEAR + BANK + VBx.' },
+    { step: '2', title: 'Track / Pattern', detail: 'L’effacement s’applique directement sur la cible sélectionnée.' },
+    { step: '3', title: 'Bank: confirmation', detail: 'Avec CLEAR + BANK maintenus, press VBx une 2e fois pour confirmer.' },
+    { step: '4', title: 'Sortie sans action', detail: 'Release CLEAR (et BANK/PATTERN) pour annuler si besoin.' },
   ]
 
-  const copyTargets = [
-    { key: '[CTRL] + [CLEAR]', action: 'Entrer en mode COPY' },
-    { key: 'Hold [CTRL]+[COPY]+[src→dst]', action: 'Copier track' },
-    { key: 'Hold [CTRL]+[COPY]+[PATTERN]+[src→dst]', action: 'Copier pattern' },
-    { key: 'Hold [CTRL]+[COPY]+[BANK]+[src→dst]', action: 'Copier bank' },
-    { key: 'Hold [VBx] + tap [CLEAR]', action: 'Hold mode (latch)' },
+  const copyFlow = [
+    { step: '1', title: 'Entrer en COPY', detail: 'Hold CTRL + CLEAR (CLEAR devient COPY).' },
+    { step: '2', title: 'Sélection source', detail: 'Ajouter TRACK / PATTERN / BANK + VBx source selon ce que tu copies.' },
+    { step: '3', title: 'Maintenir la combinaison', detail: 'Garder les touches maintenues pendant la sélection destination.' },
+    { step: '4', title: 'Sélection destination', detail: 'Press VBx destination pour coller la copie.' },
   ]
 
   return (
     <div className="exp-repeat-wrap">
       <div className="exp-repeat-grid">
-        <ButtonModeGrid
-          title="CLEAR · effacer"
-          items={clearTargets}
-          note="Le niveau effacé dépend de la combinaison: track, pattern ou bank."
-          onNavigateControl={onNavigateControl}
-        />
+        <div className="exp-repeat-card">
+          <div className="exp-repeat-card-title">CLEAR · effacer</div>
+          <div className="exp-clear-intro-box">
+            <InlineControlText
+              text="Action destructive: CLEAR remet la cible à l’état vide/défaut."
+              onNavigateControl={onNavigateControl}
+            />
+          </div>
+          <div className="exp-cycle-flow is-cycles-workflow">
+            {clearFlow.map((item) => (
+              <div key={`clear-${item.step}`} className="exp-cycle-flow-item">
+                <span className="exp-cycle-flow-step">{item.step}</span>
+                <div className="exp-cycle-flow-text">
+                  <span className="exp-cycle-flow-title">
+                    <InlineControlText text={item.title} onNavigateControl={onNavigateControl} />
+                  </span>
+                  <span className="exp-cycle-flow-detail">
+                    <InlineControlText text={item.detail} onNavigateControl={onNavigateControl} />
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
 
-        <ButtonModeGrid
-          title="COPY · via CTRL + CLEAR"
-          items={copyTargets}
-          note="En mode COPY, conserve les touches de combinaison maintenues jusqu’à la destination."
-          onNavigateControl={onNavigateControl}
-        />
+        <div className="exp-repeat-card">
+          <div className="exp-repeat-card-title">COPY · via CTRL + CLEAR</div>
+          <div className="exp-copy-intro-box">
+            <InlineControlText
+              text="COPY duplique l’état source vers une destination."
+              onNavigateControl={onNavigateControl}
+            />
+          </div>
+          <div className="exp-cycle-flow is-cycles-workflow">
+            {copyFlow.map((item) => (
+              <div key={`copy-${item.step}`} className="exp-cycle-flow-item">
+                <span className="exp-cycle-flow-step">{item.step}</span>
+                <div className="exp-cycle-flow-text">
+                  <span className="exp-cycle-flow-title">
+                    <InlineControlText text={item.title} onNavigateControl={onNavigateControl} />
+                  </span>
+                  <span className="exp-cycle-flow-detail">
+                    <InlineControlText text={item.detail} onNavigateControl={onNavigateControl} />
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   )
 }
 
 function VBVisual({ onNavigateControl }) {
-  const colorGuide = [
-    {
-      tone: 'yellow',
-      label: 'Jaune',
-      text: 'Étape/pulse actif ou focus d’édition selon la vue.',
-    },
-    {
-      tone: 'white',
-      label: 'Blanc',
-      text: 'Valeur active / état de référence visible.',
-    },
-    {
-      tone: 'green',
-      label: 'Vert',
-      text: 'Validation/état OK selon le contexte (ex. reload/save).',
-    },
-    {
-      tone: 'pink',
-      label: 'Rose',
-      text: 'Fonction spéciale (root, phase, mode user, etc.).',
-    },
-  ]
-
-  const pulseSet = new Set([0, 3, 6, 9, 12, 15])
-  const manualSet = new Set([7, 10])
-  const focusedStep = 3
-  const playingStep = 12
-  const pulseRows = [Array.from({ length: 8 }, (_, index) => index), Array.from({ length: 8 }, (_, index) => index + 8)]
-
-  const keyboardTop = [null, 'C#', 'D#', null, 'F#', 'G#', 'A#', null]
-  const keyboardBottom = ['C', 'D', 'E', 'F', 'G', 'A', 'B', null]
-  const inScale = new Set(['C', 'D', 'E', 'F', 'G', 'A', 'B'])
-  const activeNotes = new Set(['C', 'E', 'G'])
-  const rootNote = 'C'
-  const focusedNote = 'D'
-
-  const pitchRows = [
-    keyboardTop.map((note, index) => ({ vb: index + 1, note })),
-    keyboardBottom.map((note, index) => ({ vb: index + 9, note })),
-  ]
+  const [activeFamilyId, setActiveFamilyId] = useState('global')
+  const familyTabs = [{ id: 'all', label: 'Toutes' }, ...VBX_REFERENCE_FAMILIES.map((family) => ({ id: family.id, label: family.title }))]
+  const visibleFamilies = activeFamilyId === 'all'
+    ? VBX_REFERENCE_FAMILIES
+    : VBX_REFERENCE_FAMILIES.filter((family) => family.id === activeFamilyId)
 
   return (
     <div className="exp-repeat-wrap">
-      <div className="exp-repeat-card">
-        <div className="exp-repeat-card-title">VB 1–16 · guide couleur</div>
-        <div className="exp-vb-color-grid">
-          {colorGuide.map((entry) => (
-            <div key={entry.tone} className="exp-vb-color-item">
-              <span className={`exp-vb-color-dot is-${entry.tone}`} />
-              <div className="exp-vb-color-copy">
-                <span className="exp-vb-color-name">{entry.label}</span>
-                <span className="exp-vb-color-text">{entry.text}</span>
-              </div>
+      <div className="exp-vbx-header">
+        <div className="exp-repeat-card-title">Button Colour Reference</div>
+      </div>
+
+      <div className="exp-vbx-filter" role="tablist" aria-label="Filtrer les vues VB">
+        {familyTabs.map((tab) => {
+          const isActive = activeFamilyId === tab.id
+          return (
+            <button
+              key={tab.id}
+              type="button"
+              role="tab"
+              aria-selected={isActive}
+              className={`exp-vbx-filter-btn${isActive ? ' is-active' : ''}`}
+              onClick={() => setActiveFamilyId(tab.id)}
+            >
+              {tab.label}
+            </button>
+          )
+        })}
+      </div>
+
+      <div className="exp-vbx-family-list">
+        {visibleFamilies.map((family) => (
+          <section key={family.id} className="exp-vbx-family">
+            <div className="exp-vbx-family-head">
+              <h3 className="exp-vbx-family-title">{family.title}</h3>
             </div>
-          ))}
-        </div>
-        <div className="exp-style-note">
-          Les couleurs dépendent de la page active. Ce bloc te donne des repères visuels rapides, pas une règle absolue pour tous les menus.
-        </div>
+            <div className="exp-vbx-mode-grid">
+              {family.modes.map((mode) => (
+                <article key={`${family.id}-${mode.title}`} className="exp-vbx-mode-card">
+                  <div className="exp-vbx-mode-title">{mode.title}</div>
+                  <div className="exp-vbx-mode-rows">
+                    {mode.entries.map((entry) => {
+                      const tone = VBX_COLOR_MAP[entry.color] || VBX_COLOR_MAP.off
+                      return (
+                        <div key={`${mode.title}-${entry.name}-${entry.detail || ''}`} className="exp-vbx-row">
+                          <div className="exp-vbx-row-labels">
+                            <span className="exp-vbx-row-main">{entry.name}</span>
+                            {entry.detail ? <span className="exp-vbx-row-sub">{entry.detail}</span> : null}
+                          </div>
+                          <div className="exp-vbx-row-color">
+                            <span className="exp-vbx-color-token">
+                              <span className="exp-vbx-row-color-label">
+                                {tone.label}{entry.flashing ? ' · Flashing' : ''}
+                              </span>
+                              <span className={`exp-vbx-swatch is-${entry.color}${entry.flashing ? ' is-flashing' : ''}`} />
+                            </span>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+        ))}
       </div>
 
-      <div className="exp-repeat-grid">
-        <div className="exp-repeat-card">
-          <div className="exp-repeat-card-title">VB · mode PULSES</div>
-          <div className="exp-vb-stack">
-            {pulseRows.map((row, rowIndex) => (
-              <div key={`pulse-row-${rowIndex + 1}`} className="exp-vb-mode-grid">
-                {row.map((index) => {
-                  let tone = 'off'
-                  if (pulseSet.has(index)) tone = 'yellow'
-                  if (manualSet.has(index)) tone = 'pink'
-                  if (index === focusedStep) tone = 'white'
-                  if (index === playingStep) tone = 'green'
-
-                  return (
-                    <div key={`pulse-vb-${index + 1}`} className={`exp-vb-mode-cell is-${tone}`}>
-                      <span className="exp-vb-mode-label">VB{index + 1}</span>
-                    </div>
-                  )
-                })}
-              </div>
-            ))}
-          </div>
-          <div className="exp-shape-legend">
-            <span className="exp-shape-legend-item"><i className="is-vb-yellow" />Pulse euclidien</span>
-            <span className="exp-shape-legend-item"><i className="is-vb-pink" />Pulse manuel</span>
-            <span className="exp-shape-legend-item"><i className="is-vb-white" />Focus d’édition</span>
-            <span className="exp-shape-legend-item"><i className="is-vb-green" />Step en lecture</span>
-          </div>
-        </div>
-
-        <div className="exp-repeat-card">
-          <div className="exp-repeat-card-title">VB · mode PITCH (keyboard view)</div>
-          <div className="exp-vb-stack">
-            {pitchRows.map((row, rowIndex) => (
-              <div key={`pitch-row-${rowIndex + 1}`} className="exp-vb-mode-grid">
-                {row.map((entry) => {
-                  if (!entry.note) {
-                    return (
-                      <div key={`pitch-gap-${entry.vb}`} className="exp-vb-mode-cell is-gap">
-                        <span className="exp-vb-mode-label">VB{entry.vb}</span>
-                      </div>
-                    )
-                  }
-
-                  let tone = inScale.has(entry.note) ? 'white' : 'off'
-                  if (activeNotes.has(entry.note)) tone = 'green'
-                  if (entry.note === rootNote) tone = 'pink'
-                  if (entry.note === focusedNote) tone = 'yellow'
-
-                  return (
-                    <div key={`pitch-vb-${entry.vb}`} className={`exp-vb-mode-cell is-${tone}`}>
-                      <span className="exp-vb-mode-label">VB{entry.vb}</span>
-                      <span className="exp-vb-mode-note">{entry.note}</span>
-                    </div>
-                  )
-                })}
-              </div>
-            ))}
-          </div>
-          <div className="exp-style-note">
-            Exemple pédagogique: en keyboard view, les VBs représentent les notes. La couleur indique le rôle musical courant (note active, root, focus, etc.).
-          </div>
-        </div>
-      </div>
-
-      <div className="exp-repeat-link">
-        <InlineControlText
-          text="Repère: les [VBx] changent de rôle selon la page (BANK, PATTERN, TRACK, PULSES, PITCH...). Lis d’abord le contexte affiché, puis la couleur."
-          onNavigateControl={onNavigateControl}
-        />
-      </div>
     </div>
   )
 }
 
-function LengthQuantizeVisual() {
-  const lengthRows = [
-    { label: 'Length inf · boucle complète', activeSteps: 16 },
-    { label: 'Length 1/2 · boucle courte', activeSteps: 8 },
-    { label: 'Length 1/4 · boucle très courte', activeSteps: 4 },
+function LengthQuantizeVisual({ onNavigateControl }) {
+  const lengthButtons = [
+    { vb: 1, value: '1', tone: 'bar' },
+    { vb: 2, value: '2', tone: 'bar' },
+    { vb: 3, value: '3', tone: 'bar' },
+    { vb: 4, value: '4', tone: 'bar' },
+    { vb: 5, value: '5', tone: 'bar', selected: true },
+    { vb: 6, value: '6', tone: 'bar' },
+    { vb: 7, value: '7', tone: 'bar' },
+    { vb: 8, value: '8', tone: 'bar' },
+    { vb: 9, value: 'inf', tone: 'infinite' },
+    { vb: 10, value: '1/2', tone: 'sub' },
+    { vb: 11, value: '1/4', tone: 'sub' },
+    { vb: 12, value: '1/8', tone: 'sub' },
+    { vb: 13, value: '1/16', tone: 'sub' },
+    { vb: 14, value: '1/32', tone: 'sub' },
+    { vb: 15, value: '1/64', tone: 'sub' },
+    { vb: 16, value: '16', tone: 'bar' },
   ]
 
-  const quantizeBars = ['1', '2', '3', '4', '5', '6', '7', '8', '16']
-  const quantizeSubdivisions = ['1/2', '1/4', '1/8']
+  const quantizeButtons = [
+    { vb: 1, value: '1', tone: 'bar', selected: true },
+    { vb: 2, value: '2', tone: 'bar' },
+    { vb: 3, value: '3', tone: 'bar' },
+    { vb: 4, value: '4', tone: 'bar' },
+    { vb: 5, value: '5', tone: 'bar' },
+    { vb: 6, value: '6', tone: 'bar' },
+    { vb: 7, value: '7', tone: 'bar' },
+    { vb: 8, value: '8', tone: 'bar' },
+    { vb: 9, value: '', tone: 'empty' },
+    { vb: 10, value: '1/2', tone: 'sub' },
+    { vb: 11, value: '1/4', tone: 'sub' },
+    { vb: 12, value: '1/8', tone: 'sub' },
+    { vb: 13, value: '', tone: 'empty' },
+    { vb: 14, value: '', tone: 'empty' },
+    { vb: 15, value: '', tone: 'empty' },
+    { vb: 16, value: '16', tone: 'bar' },
+  ]
 
   return (
     <div className="exp-repeat-wrap">
       <div className="exp-repeat-grid">
-        <div className="exp-repeat-card">
-          <div className="exp-repeat-card-title">LENGTH · fenêtre de lecture de la track</div>
-          <div className="exp-shape-stack">
-            {lengthRows.map((row) => (
-              <div key={row.label} className="exp-shape-row">
-                <span className="exp-time-label">{row.label}</span>
-                <SequencerStrip totalSteps={16} activeSteps={row.activeSteps} />
+        <div className="exp-repeat-card exp-length-setup-card exp-steps-length-card">
+          <div className="exp-repeat-card-title">LENGTH · vue et réduction de boucle</div>
+          <div className="exp-length-note-box">
+            LENGTH est stocké au niveau TRACK. Il définit la portion de la track rejouée en boucle.
+          </div>
+          <div className="exp-length-vb-grid">
+            {[lengthButtons.slice(0, 8), lengthButtons.slice(8, 16)].map((row, rowIndex) => (
+              <div key={`length-row-${rowIndex + 1}`} className="exp-length-vb-row">
+                {row.map((entry) => (
+                  <div
+                    key={`length-vb-${entry.vb}`}
+                    className={[
+                      'exp-length-vb-cell',
+                      `is-${entry.tone}`,
+                      entry.selected ? 'is-selected' : '',
+                    ].filter(Boolean).join(' ')}
+                  >
+                    <span className="exp-length-vb-value">{entry.value}</span>
+                  </div>
+                ))}
               </div>
             ))}
           </div>
-          <div className="exp-style-note">
-            En vue LENGTH: [CLEAR] choisit un random start (effet glitch), et [CLEAR] + Turn + LENGTH combine les deux.
+          <div className="exp-shape-legend is-length">
+            <span className="exp-shape-legend-item"><i className="is-length-selected" />Sélection</span>
+            <span className="exp-shape-legend-item"><i className="is-length-bar" />Bars</span>
+            <span className="exp-shape-legend-item"><i className="is-length-sub" />Subdivisions</span>
+            <span className="exp-shape-legend-item"><i className="is-length-inf" />Infinite</span>
+          </div>
+          <div className="exp-length-glitch-box">
+            <span className="exp-length-glitch-title">Optionnel · Random Start (glitch)</span>
+            <InlineControlText
+              text="En vue LENGTH: Press CLEAR pour choisir un point de départ aléatoire du cycle. CLEAR + Turn + LENGTH combine random start et changement de longueur."
+              onNavigateControl={onNavigateControl}
+            />
           </div>
         </div>
 
-        <div className="exp-repeat-card">
+        <div className="exp-repeat-card exp-length-setup-card">
           <div className="exp-repeat-card-title">QUANTIZE · changement de pattern</div>
-          <div className="exp-shape-group-title">Bars (1–8, 16)</div>
-          <div className="exp-quantize-grid">
-            {quantizeBars.map((value, index) => (
-              <div key={`quantize-bar-${value}`} className={`exp-quantize-cell ${index === 3 ? 'is-active' : ''}`}>
-                <span className="exp-quantize-value">{value}</span>
+          <div className="exp-length-note-box">
+            QUANTIZE est stocké au niveau PATTERN. Il détermine quand un pattern en attente prend la main (barre ou subdivision).
+          </div>
+          <div className="exp-length-vb-grid">
+            {[quantizeButtons.slice(0, 8), quantizeButtons.slice(8, 16)].map((row, rowIndex) => (
+              <div key={`quantize-row-${rowIndex + 1}`} className="exp-length-vb-row">
+                {row.map((entry) => (
+                  <div
+                    key={`quantize-vb-${entry.vb}`}
+                    className={[
+                      'exp-length-vb-cell',
+                      `is-${entry.tone}`,
+                      entry.selected ? 'is-selected' : '',
+                    ].filter(Boolean).join(' ')}
+                  >
+                    <span className="exp-length-vb-value">{entry.value}</span>
+                  </div>
+                ))}
               </div>
             ))}
           </div>
-          <div className="exp-shape-group-title">Subdivisions</div>
-          <div className="exp-quantize-grid is-subdiv">
-            {quantizeSubdivisions.map((value) => (
-              <div key={`quantize-sub-${value}`} className="exp-quantize-cell">
-                <span className="exp-quantize-value">{value}</span>
-              </div>
-            ))}
+          <div className="exp-shape-legend is-length">
+            <span className="exp-shape-legend-item"><i className="is-length-selected" />Sélection</span>
+            <span className="exp-shape-legend-item"><i className="is-length-bar" />Bars</span>
+            <span className="exp-shape-legend-item"><i className="is-length-sub" />Subdivisions</span>
           </div>
-          <div className="exp-style-note">
-            QUANTIZE est stocké au niveau PATTERN: il détermine quand un pattern en file d’attente démarre.
+          <div className="exp-length-points">
+            <span>Quantize synchronise le changement de pattern avec le transport.</span>
+            <span>Quantize détermine combien de temps le pattern courant joue avant le pattern en file d’attente.</span>
           </div>
         </div>
       </div>
@@ -965,8 +1444,8 @@ function LengthQuantizeVisual() {
   )
 }
 
-function ChannelOutputVisual() {
-  const selectedChannels = new Set([1, 4])
+function ChannelOutputVisual({ onNavigateControl }) {
+  const selectedChannels = new Set([1])
   const routeExamples = [
     { from: 'Track 3 OUT', to: 'Track 9 IN (FX)' },
     { from: 'Track 3 OUT', to: 'Track 12 IN' },
@@ -975,25 +1454,35 @@ function ChannelOutputVisual() {
   return (
     <div className="exp-repeat-wrap">
       <div className="exp-repeat-grid">
-        <div className="exp-repeat-card">
-          <div className="exp-repeat-card-title">CHANNEL · assignation MIDI (par track)</div>
+        <div className="exp-repeat-card exp-channel-view-card">
+          <div className="exp-repeat-card-title">CHANNEL · vue par track</div>
           <div className="exp-channel-grid">
             {Array.from({ length: 16 }, (_, index) => {
               const channel = index + 1
               const isSelected = selectedChannels.has(channel)
               return (
-                <div key={`channel-${channel}`} className={`exp-channel-cell ${isSelected ? 'is-selected' : ''}`}>
-                  CH {channel}
+                <div
+                  key={`channel-${channel}`}
+                  className={[
+                    'exp-channel-cell',
+                    'is-available',
+                    isSelected ? 'is-selected' : '',
+                  ].filter(Boolean).join(' ')}
+                >
+                  {channel}
                 </div>
               )
             })}
           </div>
-          <div className="exp-shape-legend">
-            <span className="exp-shape-legend-item"><i className="is-current" />Canal sélectionné</span>
-            <span className="exp-shape-legend-item"><i className="is-active" />Canal disponible</span>
+          <div className="exp-shape-legend is-channel">
+            <span className="exp-shape-legend-item"><i className="is-channel-selected" />Canal sélectionné</span>
+            <span className="exp-shape-legend-item"><i className="is-channel-available" />Canal disponible</span>
           </div>
-          <div className="exp-style-note">
-            Par défaut, Track N utilise Channel N. Une track peut cibler plusieurs channels en parallèle.
+          <div className="exp-channel-note-box">
+            <InlineControlText
+              text="Par défaut, Track N utilise Channel N. Une track peut cibler plusieurs channels en parallèle."
+              onNavigateControl={onNavigateControl}
+            />
           </div>
         </div>
 
@@ -1008,8 +1497,17 @@ function ChannelOutputVisual() {
               </div>
             ))}
           </div>
-          <div className="exp-style-note">
-            Fonction avancée: CTRL + CHANNEL + VBx route la sortie de la track courante vers l’entrée d’une autre track.
+          <div className="exp-output-use-box">
+            <span className="exp-output-use-title">Pourquoi router vers une autre track</span>
+            <span>1. Envoyer une track source vers une track en mode FX pour que cette deuxième track transforme les notes reçues.</span>
+            <span>2. Créer des couches complémentaires (une track source, une track de renfort).</span>
+            <span>3. Construire des chaînes d’évolution plus complexes sans quitter le pattern courant.</span>
+          </div>
+          <div className="exp-channel-note-box">
+            <InlineControlText
+              text="Fonction avancée: CTRL + CHANNEL + VBx route la sortie de la track courante vers l’entrée d’une autre track."
+              onNavigateControl={onNavigateControl}
+            />
           </div>
         </div>
       </div>
@@ -1017,79 +1515,134 @@ function ChannelOutputVisual() {
   )
 }
 
-function RandomRateVisual({ color }) {
-  const stableProfile = [44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44]
-  const mediumProfile = [42, 50, 40, 48, 44, 52, 38, 50, 42, 48, 40, 54, 42, 50, 38, 48]
-  const highProfile = [22, 68, 30, 74, 18, 62, 34, 80, 24, 58, 16, 72, 28, 64, 20, 78]
-  const randomRows = [
-    { label: 'Random 0% · évolution minimale', profile: stableProfile },
-    { label: 'Random 50% · évolution modérée', profile: mediumProfile },
-    { label: 'Random 100% · évolution forte', profile: highProfile },
+function RandomRateVisual({ color, onNavigateControl }) {
+  const probabilityRows = [
+    { label: 'Random 0% · aucun événement appliqué', appliedSteps: [] },
+    { label: 'Random 50% · application partielle', appliedSteps: [1, 3, 5, 8, 11] },
+    { label: 'Random 100% · événement toujours appliqué', appliedSteps: Array.from({ length: 12 }, (_, index) => index) },
   ]
+
   const rateRows = [
-    { label: 'RATE /2 · plus lent', activeSteps: [0, 4, 8, 12] },
-    { label: 'RATE x1 · normal', activeSteps: [0, 2, 4, 6, 8, 10, 12, 14] },
-    { label: 'RATE x2 · plus rapide', activeSteps: Array.from({ length: 16 }, (_, index) => index) },
+    { label: 'RATE lent (/2)', activeSteps: [0, 4, 8, 12] },
+    { label: 'RATE normal (x1)', activeSteps: [0, 2, 4, 6, 8, 10, 12, 14] },
+    { label: 'RATE rapide (x2)', activeSteps: Array.from({ length: 16 }, (_, index) => index) },
+  ]
+
+  const randomSelectableRows = [
+    { parameter: 'STEPS', control: 'Cycle', affects: 'Change le nombre de steps à la fin de chaque cycle.' },
+    { parameter: 'PULSES', control: 'Cycle', affects: 'Change le nombre de pulses à la fin de chaque cycle.' },
+    { parameter: 'CYCLES', control: 'Cycle', affects: 'Probabilité de skip ou repeat d’un cycle.' },
+    { parameter: 'DIVISION', control: 'Cycle', affects: 'Probabilité d’appliquer le macro multiplicateur de division; en négatif, inclut aussi triplets/quadruplets.' },
+    { parameter: 'VELOCITY', control: 'Cycle', affects: 'Random sur la vélocité des notes du menu pitch.' },
+    { parameter: 'PITCH', control: 'Cycle', affects: 'Transpose les notes à chaque cycle.' },
+    { parameter: 'SCALE', control: 'Cycle', affects: 'Ajuste l’algorithme de scale (variantes majeures/mineures).' },
+    { parameter: 'SUSTAIN', control: 'Rate', affects: 'Random sur la longueur de note.' },
+    { parameter: 'REPEATS', control: 'Rate', affects: 'Random sur le nombre de répétitions.' },
+    { parameter: 'TIME', control: 'Rate', affects: 'Probabilité d’appliquer le macro multiplicateur de division; en négatif, inclut aussi triplets/quadruplets.' },
+    { parameter: 'VOICING', control: 'Rate', affects: 'Ajoute du random au voicing: côté droit/positif sur la range, côté gauche/négatif sur le style.' },
+    { parameter: 'RANGE', control: 'Rate', affects: 'Random sur l’amplitude de mouvement mélodique.' },
+    { parameter: 'ACCENT', control: 'Rate', affects: 'Random sur la vélocité d’accent.' },
+    { parameter: 'TIMING', control: 'Rate', affects: 'Random sur le micro-timing.' },
+    { parameter: 'CHANNEL', control: 'Rate', affects: 'Change les notes transmises (gauche: mono, droite: poly).' },
+    { parameter: 'PROBABILITY', control: 'Rate', affects: 'Random sur le comportement de probability par pas.' },
+    { parameter: 'LENGTH', control: '—', affects: 'Longueur de track + random start (positif).' },
+    { parameter: 'CC TRACKS', control: '—', affects: 'Applique la séquence random bi-polaire 16 pas à la valeur d’un paramètre CC track.' },
   ]
 
   return (
     <div className="exp-repeat-wrap">
-      <div className="exp-repeat-grid">
+      <div className="exp-repeat-grid exp-random-top-grid">
         <div className="exp-repeat-card">
-          <div className="exp-repeat-card-title">RANDOM · évolution globale (0–100%)</div>
+          <div className="exp-repeat-card-title">RANDOM · probabilité globale d’application</div>
           <div className="exp-random-stack">
-            {randomRows.map((row) => (
+            {probabilityRows.map((row) => (
               <div key={row.label} className="exp-random-row">
                 <span className="exp-time-label">{row.label}</span>
-                <div className="exp-random-strip">
-                  {row.profile.map((height, index) => (
+                <div className="exp-random-strip is-probability">
+                  {Array.from({ length: 12 }, (_, index) => (
                     <span
                       key={`${row.label}-${index}`}
-                      className="exp-random-step"
-                      style={{ '--random-h': `${height}%`, '--random-color': color }}
+                      className={`exp-random-prob-step ${row.appliedSteps.includes(index) ? 'is-applied' : 'is-off'}`}
+                      style={{ '--random-color': color }}
                     />
                   ))}
                 </div>
               </div>
             ))}
           </div>
-          <div className="exp-style-note">
-            Le manuel parle de probabilité d’événement random; en pratique cela se perçoit aussi comme une intensité d’évolution de la séquence.
-          </div>
         </div>
 
-        <div className="exp-repeat-card">
-          <div className="exp-repeat-card-title">RANDOM + RATE · réglages</div>
-          <div className="exp-random-controls">
-            <div className="exp-random-bipolar">
-              <span className="is-neg">-100% (souvent mono)</span>
-              <span className="is-zero">0</span>
-              <span className="is-pos">+100% (souvent poly)</span>
-            </div>
-            <div className="exp-rate-stack">
-              {rateRows.map((row) => (
-                <div key={row.label} className="exp-rate-row">
-                  <span className="exp-time-label">{row.label}</span>
-                  <div className="exp-rate-track">
-                    {Array.from({ length: 16 }, (_, index) => (
-                      <span
-                        key={`${row.label}-${index}`}
-                        className={`exp-rate-step ${row.activeSteps.includes(index) ? 'is-active' : ''}`}
-                        style={{ '--rate-color': color }}
-                      />
-                    ))}
-                  </div>
+        <div className="exp-repeat-card exp-random-rate-card">
+          <div className="exp-repeat-card-title">RATE · vitesse de la séquence random</div>
+          <div className="exp-random-stack">
+            {rateRows.map((row) => (
+              <div key={row.label} className="exp-random-row">
+                <span className="exp-time-label">{row.label}</span>
+                <div className="exp-random-strip is-rate">
+                  {Array.from({ length: 16 }, (_, index) => (
+                    <span
+                      key={`${row.label}-${index}`}
+                      className={`exp-random-prob-step ${row.activeSteps.includes(index) ? 'is-applied' : 'is-off'}`}
+                      style={{ '--random-color': color }}
+                    />
+                  ))}
                 </div>
-              ))}
-            </div>
-            <div className="exp-random-rate-row">
-              <span className="exp-phase-badge">RANDOM + Knob + VB8</span>
-              <span className="exp-phase-badge">RANDOM + Knob + VB16</span>
-            </div>
-            <div className="exp-style-note">
-              RATE = division temporelle de la séquence random (pas le tempo BPM). RANDOM + Knob = amount du paramètre. CTRL + RANDOM + Turn + Knob = slew.
-            </div>
+              </div>
+            ))}
           </div>
+        </div>
+      </div>
+
+      <div className="exp-repeat-card exp-random-param-card">
+        <div className="exp-repeat-card-title">RANDOM + PARAMÈTRE · intensité locale</div>
+        <div className="exp-random-bipolar">
+          <span className="is-neg">-100%: côté gauche, souvent mono (selon paramètres compatibles)</span>
+          <span className="is-zero">0</span>
+          <span className="is-pos">+100%: côté droit, souvent poly (selon paramètres compatibles)</span>
+        </div>
+        <div className="exp-random-mode-list">
+          <div className="exp-random-mode-item">
+            <span className="exp-random-mode-key">Hold RANDOM + Turn Knob</span>
+            <span className="exp-random-mode-text">Règle l’intensité bi-polaire du paramètre choisi.</span>
+          </div>
+          <div className="exp-random-mode-item">
+            <span className="exp-random-mode-key">Hold RANDOM + Press Knob + VBx</span>
+            <span className="exp-random-mode-text">Sélection fine de la valeur du paramètre.</span>
+          </div>
+          <div className="exp-random-mode-item">
+            <span className="exp-random-mode-key">Hold RANDOM + Press Knob + VB8 / VB16</span>
+            <span className="exp-random-mode-text">Décale la phase de la séquence random (plus tôt / plus tard).</span>
+          </div>
+          <div className="exp-random-mode-item">
+            <span className="exp-random-mode-key">CTRL + RANDOM + Turn Knob</span>
+            <span className="exp-random-mode-text">Applique du slew (lissage) sur la lane du paramètre.</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="exp-repeat-card exp-random-table-card">
+        <div className="exp-repeat-card-title">RANDOM · paramètres randomisables (manuel)</div>
+        <div className="exp-random-table">
+          <div className="exp-random-table-head">
+            <span>Paramètre</span>
+            <span>Contrôle</span>
+            <span>Effet principal</span>
+          </div>
+          {randomSelectableRows.map((entry) => (
+            <div key={entry.parameter} className="exp-random-table-row">
+              <div className="exp-random-table-cell is-param">
+                <InlineControlText text={entry.parameter} onNavigateControl={onNavigateControl} />
+              </div>
+              <div className="exp-random-table-cell is-control">
+                <span className="exp-random-control-chip">
+                  {entry.control}
+                </span>
+              </div>
+              <div className="exp-random-table-cell is-effect">
+                <InlineControlText text={entry.affects} onNavigateControl={onNavigateControl} />
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
@@ -2063,6 +2616,7 @@ export default function ExplanationPanel({ item, onNavigateControl }) {
       ? 'harmony'
       : 'control'
   const displaySecondary = item.id === 'REPEATS' ? 'RAMP' : item.secondary
+  const docReference = getDocReference(item)
 
   const usageSupplement = USAGE_HINTS[item.id] || item.notes || null
   const mergedDescription = item.id === 'REPEATS'
@@ -2070,11 +2624,11 @@ export default function ExplanationPanel({ item, onNavigateControl }) {
       : item.id === 'STEPS'
       ? 'STEPS définit la longueur du pattern euclidien. En tournant, les pulses euclidiens sont redistribués automatiquement sur la nouvelle longueur. La longueur peut être étendue jusqu’à 64 steps (4 pages de 16).'
       : item.id === 'PULSES'
-      ? 'PULSES règle combien de pulses euclidiens sont distribués dans les steps. Les pulses ajoutés manuellement en vue PULSES ne sont pas modifiés par Turn PULSES. ROTATE décale ensuite le point de départ du pattern.'
+      ? 'PULSES règle combien de pulses euclidiens sont distribués dans les steps. Tu peux aussi ajouter ou retirer des pulses manuellement en vue PULSES via les VBx.'
       : item.id === 'CYCLES'
-      ? 'CYCLES joue des variantes de paramètres par itérations de pattern. Un cycle est un conteneur de valeurs alternatives: en mode édition, les paramètres tournés sont lockés dans le cycle sélectionné, puis rejoués en séquence.'
+      ? 'CYCLES crée des variantes de la même track dans le temps. Par défaut, 4 cycles actifs sont présents. Tu peux ensuite éditer certains cycles pour créer une progression. Chaque cycle rejoue sa propre version des paramètres.'
       : item.id === 'DIVISION'
-      ? 'DIVISION fixe la valeur rythmique des steps de la track (quadruplets et triplets). Tu peux choisir une division preset via les VBs, ou passer en division libre haute résolution avec CTRL + Turn DIVISION.'
+      ? 'DIVISION fixe la valeur rythmique des steps de la track. Tu peux choisir un preset de division via les VBx, ou passer en division libre haute résolution avec CTRL + Turn DIVISION.'
       : item.id === 'SUSTAIN'
       ? 'SUSTAIN règle la longueur des notes en pourcentage, relative à DIVISION. Cette longueur s’applique aux pulses et aux repeats; un nouveau trigger coupe la note précédente.'
       : item.id === 'VELOCITY'
@@ -2088,11 +2642,11 @@ export default function ExplanationPanel({ item, onNavigateControl }) {
       : item.id === 'TEMPO'
       ? 'TEMPO règle le BPM global du bank (24–280). Turn TEMPO ajuste finement (1 BPM par cran). Si une clock externe prend la main, le tempo interne n’est plus maître.'
       : item.id === 'LENGTH'
-      ? 'LENGTH réduit la fenêtre de lecture de la track: la boucle rejoue cette longueur en continu. En vue LENGTH, CLEAR peut forcer un random start pour des variations glitch. QUANTIZE (CTRL + LENGTH) est stocké par pattern et détermine quand un pattern en attente prend la main.'
+      ? 'LENGTH réduit la fenêtre de lecture de la track: la boucle rejoue cette longueur en continu au niveau track. QUANTIZE est stocké au niveau pattern: il synchronise le changement de pattern avec le transport et fixe le moment où le pattern en attente démarre.'
       : item.id === 'CHANNEL'
       ? 'CHANNEL assigne un ou plusieurs canaux MIDI (1–16) à la track, avec Track N -> Channel N par défaut. OUTPUT permet un routage track-vers-track (sortie de la track courante vers l’entrée d’une autre), utile pour des traitements internes/FX.'
       : item.id === 'RANDOM'
-      ? 'RANDOM pilote une modulation globale en 16 pas. Turn RANDOM règle la probabilité d’application (perçue comme intensité d’évolution). RANDOM + un paramètre règle sa quantité bi-polaire. RATE règle la division temporelle de la séquence random (pas le BPM). D’après le manuel, TEMPO ne fait pas partie des paramètres randomisables.'
+      ? 'Probabilité globale d’application: Turn + RANDOM.\nRégler la vitesse de la séquence: CTRL + Turn + RANDOM.\nRégler l’intensité du paramètre ciblé: Hold + RANDOM + Turn + Knob.'
       : item.id === 'BANK'
       ? 'BANK est le niveau d’organisation le plus haut dans le T-1: 1 sequencer contient 16 banks, et chaque bank contient 16 patterns. Quand tu changes de bank, tu changes donc de “dossier” complet de patterns. Le [TEMPO] est stocké au niveau bank.'
       : item.id === 'PATTERN'
@@ -2102,13 +2656,13 @@ export default function ExplanationPanel({ item, onNavigateControl }) {
       : item.id === 'CTRL'
       ? 'CTRL est le modificateur global du T-1: maintiens-le pour accéder aux fonctions secondaires des knobs et boutons. C’est la porte d’entrée des actions avancées (save bank, copy, modes secondaires, etc.).'
       : item.id === 'CLEAR'
-      ? 'CLEAR efface selon la combinaison active (track, pattern ou bank). Avec [CTRL], CLEAR devient COPY pour dupliquer tracks, patterns et banks via source -> destination.'
+      ? 'CLEAR efface selon la combinaison active (track, pattern ou bank).\nAvec CTRL, CLEAR devient COPY pour dupliquer tracks, patterns et banks via source -> destination.'
       : item.id === 'TEMP'
-      ? 'TEMP applique des variations de performance temporaires: Hold [TEMP] + Turn (param), puis relâchement = retour automatique à la valeur d’origine.'
+      ? 'TEMP applique des variations de performance temporaires: Hold TEMP + Turn Knob, puis relâchement = retour automatique à la valeur d’origine. C’est pensé pour le jeu live sans détruire les réglages de base.'
       : item.id === 'MUTE'
-      ? 'MUTE gère l’état des tracks en live: Hold [MUTE] + [VBx] prépare un toggle appliqué au relâchement; [CTRL]+[MUTE]+[VBx] applique un mute/unmute immédiat.'
+      ? 'MUTE gère l’état des tracks en live.\nLes tracks FX gardent leur couleur tant qu’elles ne sont pas mutées.\nHold MUTE + VBx prépare l’action au relâchement; CTRL + MUTE + VBx applique un mute/unmute immédiat.'
       : item.id === 'VB'
-      ? 'Les 16 Value Buttons (VB1–VB16) sont contextuels: leur fonction et leur couleur changent selon la vue active (BANK, PATTERN, TRACK, PULSES, PITCH, etc.). Lis toujours la page active pour interpréter correctement l’état lumineux.'
+      ? 'Les 16 Value Buttons (VB1–VB16) sont contextuels: leur fonction et leur couleur changent selon la vue active (BANK, PATTERN, TRACK, PULSES, PITCH, etc.). Le guide ci-dessous reprend la référence couleur complète (section 2.10) mode par mode.'
       : item.id === 'PITCH'
         ? 'PITCH construit un groupe de notes selon la SCALE active, puis transpose ce groupe dans la gamme. HARMONY crée des variations d’accord: chaque cran de knob déplace une seule note dans la scale active. La note est choisie automatiquement par l’algorithme (recette interne, souvent perçue comme aléatoire).'
       : item.id === 'SCALE'
@@ -2128,9 +2682,20 @@ export default function ExplanationPanel({ item, onNavigateControl }) {
         <div className="exp-chip" style={{ color, borderColor: `${color}4a`, background: `${color}18` }}>
           {(item.label || item.id)}{displaySecondary ? ` / ${displaySecondary}` : ''}
         </div>
+        {docReference && (
+          <a
+            className="exp-doc-link"
+            href={docReference.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            title={docReference.title}
+          >
+            <span className="exp-doc-link-label">DOCUMENTATION</span>
+          </a>
+        )}
       </div>
 
-      <p className="exp-description">
+      <p className={`exp-description${item.id === 'RANDOM' || item.id === 'MUTE' || item.id === 'CLEAR' ? ' is-random' : ''}`}>
         <InlineControlText text={normalizeDescriptionText(mergedDescription)} onNavigateControl={onNavigateControl} />
       </p>
 
@@ -2139,9 +2704,9 @@ export default function ExplanationPanel({ item, onNavigateControl }) {
       ) : item.id === 'PULSES' ? (
         <PulsesVisual />
       ) : item.id === 'CYCLES' ? (
-        <CyclesVisual />
+        <CyclesVisual onNavigateControl={onNavigateControl} />
       ) : item.id === 'DIVISION' ? (
-        <DivisionVisual />
+        <DivisionVisual onNavigateControl={onNavigateControl} />
       ) : item.id === 'VELOCITY' ? (
         <VelocityProbabilityVisual color={color} onNavigateControl={onNavigateControl} />
       ) : item.id === 'SUSTAIN' ? (
@@ -2155,13 +2720,13 @@ export default function ExplanationPanel({ item, onNavigateControl }) {
       ) : item.id === 'TIMING' ? (
         <TimingDelayVisual color={color} />
       ) : item.id === 'TEMPO' ? (
-        <TempoVisual />
+        <TempoVisual onNavigateControl={onNavigateControl} />
       ) : item.id === 'LENGTH' ? (
-        <LengthQuantizeVisual />
+        <LengthQuantizeVisual onNavigateControl={onNavigateControl} />
       ) : item.id === 'CHANNEL' ? (
-        <ChannelOutputVisual />
+        <ChannelOutputVisual onNavigateControl={onNavigateControl} />
       ) : item.id === 'RANDOM' ? (
-        <RandomRateVisual color={color} />
+        <RandomRateVisual color={color} onNavigateControl={onNavigateControl} />
       ) : item.id === 'BANK' ? (
         <BankPatternHierarchyVisual focus="bank" onNavigateControl={onNavigateControl} />
       ) : item.id === 'PATTERN' ? (

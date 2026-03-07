@@ -111,12 +111,12 @@ export default function Reference({ onNavigateControl }) {
   const [filter, setFilter] = useState('all')
 
   const FILTERS = [
-    { id: 'all',    label: 'Tout' },
+    { id: 'all',    label: 'TOUT' },
     { id: 'SHAPE',  label: 'SHAPE',  color: '#5BA3C9' },
     { id: 'GROOVE', label: 'GROOVE', color: '#9A72C4' },
     { id: 'TONAL',  label: 'TONAL',  color: '#6AB870' },
     { id: 'SETUP',  label: 'SETUP',  color: '#C49042' },
-    { id: 'BUTTONS',label: 'Boutons', color: '#888888' },
+    { id: 'BUTTONS',label: 'BOUTONS', color: '#888888' },
   ]
 
   const sectionsToShow = filter === 'all'

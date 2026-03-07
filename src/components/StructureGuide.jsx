@@ -124,12 +124,13 @@ export default function StructureGuide({ onNavigateControl }) {
         </section>
 
         <section className={`structure-card structure-focus-card is-${active.tone}`}>
-          <div className="structure-card-title">Niveau selectionne</div>
+          <div className="structure-focus-kicker">
+            <span className={`structure-focus-badge is-${active.tone}`}>{active.subtitle}</span>
+            <span className={`structure-focus-count is-${active.tone}`}>{active.count}</span>
+          </div>
           <div className="structure-focus-head">
             <span className="structure-focus-title">{active.title}</span>
-            <span className={`structure-focus-badge is-${active.tone}`}>{active.subtitle}</span>
           </div>
-          <div className={`structure-focus-count is-${active.tone}`}>{active.count}</div>
           <p className="structure-focus-text">
             <InlineControlText text={active.detail} onNavigateControl={onNavigateControl} />
           </p>
@@ -141,15 +142,17 @@ export default function StructureGuide({ onNavigateControl }) {
 
           <div className="structure-focus-shortcuts">
             <span className="structure-focus-shortcuts-title">Raccourcis essentiels</span>
-            <div className="structure-focus-shortcuts-grid">
+            <div className="structure-shortcut-flow">
               {active.shortcuts.map((shortcut) => (
                 <div key={`${shortcut.key}-${shortcut.action}`} className="structure-shortcut-item">
-                  <span className="structure-shortcut-key">
-                    <InlineControlText text={shortcut.key} onNavigateControl={onNavigateControl} />
-                  </span>
-                  <span className="structure-shortcut-action">
-                    <InlineControlText text={shortcut.action} onNavigateControl={onNavigateControl} />
-                  </span>
+                  <div className="structure-shortcut-copy">
+                    <span className="structure-shortcut-key">
+                      <InlineControlText text={shortcut.key} onNavigateControl={onNavigateControl} />
+                    </span>
+                    <span className="structure-shortcut-action">
+                      <InlineControlText text={shortcut.action} onNavigateControl={onNavigateControl} />
+                    </span>
+                  </div>
                 </div>
               ))}
             </div>
