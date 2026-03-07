@@ -1254,19 +1254,47 @@ function ClearButtonVisual({ onNavigateControl }) {
 }
 
 function VBVisual({ onNavigateControl }) {
-  const [activeFamilyId, setActiveFamilyId] = useState('global')
+  const [activeFamilyId, setActiveFamilyId] = useState('all')
+  const [searchQuery, setSearchQuery] = useState('')
   const familyTabs = [{ id: 'all', label: 'Toutes' }, ...VBX_REFERENCE_FAMILIES.map((family) => ({ id: family.id, label: family.title }))]
-  const visibleFamilies = activeFamilyId === 'all'
+  const baseFamilies = activeFamilyId === 'all'
     ? VBX_REFERENCE_FAMILIES
     : VBX_REFERENCE_FAMILIES.filter((family) => family.id === activeFamilyId)
 
+  const searchLower = searchQuery.trim().toLowerCase()
+  const visibleFamilies = useMemo(() => {
+    if (!searchLower) return baseFamilies
+    return baseFamilies
+      .map((family) => {
+        const filteredModes = family.modes
+          .map((mode) => {
+            const filteredEntries = mode.entries.filter(
+              (e) =>
+                (e.name && e.name.toLowerCase().includes(searchLower)) ||
+                (e.detail && e.detail.toLowerCase().includes(searchLower)) ||
+                (mode.title && mode.title.toLowerCase().includes(searchLower)) ||
+                (family.title && family.title.toLowerCase().includes(searchLower))
+            )
+            return filteredEntries.length ? { ...mode, entries: filteredEntries } : null
+          })
+          .filter(Boolean)
+        return filteredModes.length ? { ...family, modes: filteredModes } : null
+      })
+      .filter(Boolean)
+  }, [baseFamilies, searchLower])
+
   return (
     <div className="exp-repeat-wrap">
-      <div className="exp-vbx-header">
-        <div className="exp-repeat-card-title">Button Colour Reference</div>
-      </div>
-
-      <div className="exp-vbx-filter" role="tablist" aria-label="Filtrer les vues VB">
+      <div className="exp-vbx-toolbar">
+        <input
+          type="search"
+          placeholder="Rechercher…"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="exp-vbx-search"
+          aria-label="Rechercher dans la référence couleur"
+        />
+        <div className="exp-vbx-filter" role="tablist" aria-label="Filtrer les vues VB">
         {familyTabs.map((tab) => {
           const isActive = activeFamilyId === tab.id
           return (
@@ -1282,6 +1310,7 @@ function VBVisual({ onNavigateControl }) {
             </button>
           )
         })}
+        </div>
       </div>
 
       <div className="exp-vbx-family-list">

@@ -721,20 +721,52 @@
   color: #d9c29a;
 }
 
+.exp-vbx-toolbar {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.exp-vbx-search {
+  flex: 1;
+  min-width: 140px;
+  max-width: 200px;
+  min-height: 38px;
+  padding: 6px 15px;
+  font-size: 13px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  transition: border-color 0.15s ease;
+  box-sizing: border-box;
+}
+
+.exp-vbx-search::placeholder {
+  color: var(--text-3);
+  font-weight: 500;
+}
+
+.exp-vbx-search:focus {
+  outline: none;
+  border-color: rgba(91, 163, 201, 0.5);
+}
+
 .exp-vbx-filter {
   display: inline-flex;
   gap: 4px;
   flex-wrap: wrap;
-  margin-bottom: 12px;
   padding: 6px;
   background: var(--surface);
   border-radius: 10px;
   border: 1px solid var(--border);
   width: fit-content;
-}
-
-.exp-vbx-header {
-  display: block;
+  align-items: center;
 }
 
 .exp-vbx-filter-btn {
@@ -786,7 +818,7 @@
 
 .exp-vbx-family-title {
   margin: 0;
-  font-size: 12px;
+  font-size: 14px;
   font-family: var(--font-mono);
   letter-spacing: 1.4px;
   color: var(--text-2);
@@ -810,12 +842,13 @@
 }
 
 .exp-vbx-mode-title {
-  font-size: 11px;
+  font-size: 14px;
   font-family: var(--font-mono);
   text-transform: uppercase;
   letter-spacing: 0.9px;
   color: #d8b289;
   line-height: 1.32;
+  font-weight: 700;
 }
 
 .exp-vbx-mode-rows {
@@ -828,8 +861,8 @@
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 8px;
   align-items: center;
-  padding: 6px 0;
-  min-height: 38px;
+  padding: 10px 0;
+  min-height: 44px;
 }
 
 .exp-vbx-row + .exp-vbx-row {

@@ -3,7 +3,6 @@ import { KNOBS, BUTTONS, SECTIONS } from './data/params.js'
 import Device from './components/Device.jsx'
 import DetailPanel from './components/DetailPanel.jsx'
 import ExplanationPanel from './components/ExplanationPanel.jsx'
-import Reference from './components/Reference.jsx'
 import QuickRef from './components/QuickRef.jsx'
 import ChangelogView from './components/Changelog.jsx'
 import SearchOverlay from './components/SearchOverlay.jsx'
@@ -14,7 +13,6 @@ import './App.css'
 const TABS = [
   { id: 'device', label: 'Device' },
   { id: 'structure', label: 'Structure' },
-  { id: 'reference', label: 'Référence' },
   { id: 'quickref', label: 'Essentiels' },
   { id: 'changelog', label: 'Changelog' },
 ]
@@ -258,14 +256,6 @@ export default function App() {
                   </div>
                 )}
             </aside>
-          </div>
-        )}
-
-        {tab === 'reference' && (
-          <div className="anim-fade-up">
-            <Reference
-              onNavigateControl={openControlById}
-            />
           </div>
         )}
 
