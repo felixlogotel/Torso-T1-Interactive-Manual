@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Torso T-1 Tutorial Video</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #070915;
+        --surface: #0f1326;
+        --surface-2: #171c33;
+        --border: #2a304a;
+        --text: #e9edf7;
+        --text-2: #b7bfd6;
+        --accent: #d88a47;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: radial-gradient(circle at top, #101837, var(--bg) 45%);
+        color: var(--text);
+        font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+      }
+
+      .wrap {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 24px 18px 36px;
+      }
+
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 18px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .brand img {
+        width: 34px;
+        height: 34px;
+      }
+
+      .brand-title {
+        font-size: 14px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--text-2);
+      }
+
+      .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 12px;
+        border: 1px solid var(--border);
+        border-radius: 9px;
+        color: var(--text-2);
+        text-decoration: none;
+        background: var(--surface);
+        font-size: 13px;
+      }
+
+      .back-link:hover {
+        border-color: #404967;
+        color: var(--text);
+      }
+
+      .panel {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 20px 38px rgba(0, 0, 0, 0.35);
+      }
+
+      .panel-head {
+        padding: 16px 18px;
+        border-bottom: 1px solid var(--border);
+        background: linear-gradient(90deg, rgba(216, 138, 71, 0.12), transparent);
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 19px;
+        font-weight: 600;
+      }
+
+      .player-wrap {
+        padding: 16px;
+      }
+
+      video {
+        width: 100%;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: #000;
+        display: block;
+      }
+
+    </style>
+  </head>
+  <body>
+    <main class="wrap">
+      <div class="topbar">
+        <div class="brand">
+          <img src="/logo_boxed_white.svg" alt="Torso" />
+          <div class="brand-title">Torso T-1 Tutorial</div>
+        </div>
+        <a class="back-link" href="./" id="back-link">← Back to manual</a>
+      </div>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h1 id="title">How the Torso T-1 Interactive Manual Works</h1>
+        </div>
+        <div class="player-wrap">
+          <video id="tutorial-video" controls preload="metadata" playsinline>
+            <source id="tutorial-video-source" src="/Torso%20T-1%20Interactive%20Manual.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      function normalizeLanguage(input) {
+        if (!input) return null;
+        const normalized = String(input).toLowerCase().split("-")[0];
+        if (normalized === "fr") return "fr";
+        if (normalized === "en") return "en";
+        return null;
+      }
+
+      function normalizeVideoUrl(input) {
+        if (!input) return null;
+        const normalized = String(input).trim();
+        return normalized.length ? normalized : null;
+      }
+
+      const query = new URLSearchParams(window.location.search);
+      const urlLang = normalizeLanguage(query.get("lang"));
+      const storedLang = normalizeLanguage(window.localStorage.getItem("torso-t1-manual.language"));
+      const browserLang = normalizeLanguage(window.navigator.language);
+      const language = urlLang || storedLang || browserLang || "en";
+
+      const urlVideo = normalizeVideoUrl(query.get("video"));
+      const storedVideo = normalizeVideoUrl(window.localStorage.getItem("torso-t1-manual.videoUrl"));
+      const videoUrl = urlVideo || storedVideo || "/Torso%20T-1%20Interactive%20Manual.mp4";
+
+      window.localStorage.setItem("torso-t1-manual.language", language);
+      if (urlVideo) {
+        window.localStorage.setItem("torso-t1-manual.videoUrl", urlVideo);
+      }
+
+      const source = document.getElementById("tutorial-video-source");
+      const video = document.getElementById("tutorial-video");
+      if (source && video) {
+        source.src = videoUrl;
+        video.load();
+      }
+
+      if (language === "fr") {
+        document.documentElement.lang = "fr";
+        document.title = "Tutoriel Vidéo Torso T-1";
+        document.getElementById("title").textContent = "Comment fonctionne le Manuel Interactif Torso T-1";
+        document.getElementById("back-link").textContent = "← Retour au manuel";
+      }
+    </script>
+  </body>
+</html>

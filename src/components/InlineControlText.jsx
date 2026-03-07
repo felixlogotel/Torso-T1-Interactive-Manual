@@ -33,11 +33,23 @@ export default function InlineControlText({
   const normalizedText = normalizeControlText(text)
   const parts = splitTextWithControls(normalizedText)
 
+  const renderTextWithLineBreaks = (value, keyPrefix) => {
+    const lines = String(value).split('\n')
+    if (lines.length <= 1) return value
+
+    return lines.map((line, lineIndex) => (
+      <Fragment key={`${keyPrefix}-line-${lineIndex}`}>
+        {line}
+        {lineIndex < lines.length - 1 ? <br /> : null}
+      </Fragment>
+    ))
+  }
+
   return (
     <span className="inline-control-text">
       {parts.map((part, index) => {
         if (part.type === 'text') {
-          return <Fragment key={`text-${index}`}>{part.value}</Fragment>
+          return <Fragment key={`text-${index}`}>{renderTextWithLineBreaks(part.value, `text-${index}`)}</Fragment>
         }
 
         const className = `inline-control-link is-${variant}${onNavigateControl ? '' : ' is-static'}`

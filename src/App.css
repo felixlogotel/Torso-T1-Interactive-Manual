@@ -110,12 +110,14 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  height: 32px;
+  box-sizing: border-box;
   background: var(--surface);
   border: 1px solid var(--border-2);
   border-radius: var(--radius);
   color: var(--text-2);
   font-size: 14px;
-  padding: 7px 12px;
+  padding: 0 12px;
   cursor: pointer;
   font-family: var(--font-sans);
   transition: border-color 0.15s ease, color 0.15s ease;
@@ -130,6 +132,96 @@
   border-color: var(--accent-border);
   background: var(--accent-bg);
   color: var(--accent);
+}
+
+.app-header-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.app-help-btn {
+  justify-content: center;
+  min-width: 36px;
+  padding: 7px 10px;
+  text-decoration: none;
+}
+
+.app-help-icon {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  border: 1px solid var(--border-2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.app-language-menu {
+  position: relative;
+}
+
+.app-language-btn {
+  width: 44px;
+  min-width: 44px;
+  padding: 0;
+  justify-content: center;
+}
+
+.app-language-flag {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.app-language-code {
+  font-size: 13px;
+  letter-spacing: 0.2px;
+}
+
+.app-language-dropdown {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  min-width: 170px;
+  background: var(--surface);
+  border: 1px solid var(--border-2);
+  border-radius: 9px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45);
+  padding: 6px;
+  z-index: 210;
+}
+
+.app-language-option {
+  width: 100%;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 9px;
+  text-align: left;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.app-language-option:hover,
+.app-language-option.is-active {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.app-language-option-flag {
+  font-size: 14px;
+}
+
+.app-language-option-label {
+  letter-spacing: 0.2px;
 }
 
 .app-search-kbd {
@@ -256,6 +348,11 @@
   .app-search-label,
   .app-version-badge {
     display: none;
+  }
+
+  .app-language-btn {
+    width: 44px;
+    min-width: 44px;
   }
 }
 

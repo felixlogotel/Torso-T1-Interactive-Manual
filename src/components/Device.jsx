@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { KNOBS, BUTTONS, SECTIONS } from '../data/params.js'
 import {
   KNOB_HOTSPOTS,
@@ -41,15 +42,21 @@ export default function Device({
   selected,
   onSelect,
   hint,
+  knobs = KNOBS,
+  buttons = BUTTONS,
 }) {
+  const { i18n } = useTranslation()
+  const language = String(i18n.resolvedLanguage || i18n.language || 'fr').toLowerCase()
+  const isFrench = language.startsWith('fr')
+
   const knobsById = useMemo(
-    () => Object.fromEntries(KNOBS.map((knob) => [knob.id, knob])),
-    [],
+    () => Object.fromEntries(knobs.map((knob) => [knob.id, knob])),
+    [knobs],
   )
 
   const buttonsById = useMemo(
-    () => Object.fromEntries(BUTTONS.map((button) => [button.id, button])),
-    [],
+    () => Object.fromEntries(buttons.map((button) => [button.id, button])),
+    [buttons],
   )
 
   const vbButton = buttonsById.VB
@@ -116,7 +123,7 @@ export default function Device({
               y={y}
               size={HOTSPOT_SIZES.vb}
               color="#e87a0a"
-              title={`Value Button ${vb}`}
+              title={isFrench ? `Bouton de valeur ${vb}` : `Value Button ${vb}`}
               isSelected={false}
               isHinted={false}
               onClick={(event) => {
@@ -129,8 +136,8 @@ export default function Device({
           {vbButton && (
             <button
               type="button"
-              aria-label="Zone VBX"
-              title="Zone VBX"
+              aria-label={isFrench ? 'Zone VBX' : 'VBX area'}
+              title={isFrench ? 'Zone VBX' : 'VBX area'}
               className={`t1-hotspot-vbx-zone ${isVBSelected ? 'is-selected' : ''} ${isVBHinted ? 'is-hinted' : ''}`}
               style={{
                 left: `${VBX_ZONE.x}%`,

@@ -72,6 +72,12 @@
   display: inline-block;
 }
 
+.exp-doc-link-icon {
+  display: inline-block;
+  margin-left: 5px;
+  flex-shrink: 0;
+}
+
 .exp-description {
   margin: 0 0 12px;
   font-size: 17px;
@@ -527,6 +533,19 @@
   color: var(--text-3);
   font-family: var(--font-mono);
   line-height: 1.35;
+}
+
+/* Encadré bleu pour note / info (au-dessus des blocs pages ou raccourcis) */
+.exp-note-box {
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  font-size: 12px;
+  font-family: var(--font-mono);
+  line-height: 1.4;
+  color: var(--text-2);
+  border: 1px solid rgba(91, 163, 201, 0.35);
+  border-radius: var(--radius);
+  background: rgba(91, 163, 201, 0.08);
 }
 
 .exp-button-mode-grid {
@@ -1346,6 +1365,18 @@
 
 .exp-steps-length-card .exp-shape-stack {
   gap: 14px;
+}
+
+.exp-steps-extension-card .exp-shape-pages {
+  margin-top: 12px;
+}
+
+.exp-steps-extension-card .exp-button-mode-key {
+  font-size: 10px;
+  padding: 3px 7px;
+  border: 1px solid rgba(232, 122, 10, 0.4);
+  background: rgba(232, 122, 10, 0.17);
+  white-space: nowrap;
 }
 
 .exp-steps-length-card .exp-shape-row {

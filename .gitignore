@@ -25,3 +25,6 @@ Thumbs.db
 # Logs
 *.log
 npm-debug.log*
+
+# Local tutorial video source (large file, served via external URL in production)
+public/Torso T-1 Interactive Manual.mp4

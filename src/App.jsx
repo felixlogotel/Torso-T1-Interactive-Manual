@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, Fragment } from 'react'
+import { useTranslation } from 'react-i18next'
 import { KNOBS, BUTTONS, SECTIONS } from './data/params.js'
 import Device from './components/Device.jsx'
 import DetailPanel from './components/DetailPanel.jsx'
@@ -7,15 +8,12 @@ import QuickRef from './components/QuickRef.jsx'
 import ChangelogView from './components/Changelog.jsx'
 import SearchOverlay from './components/SearchOverlay.jsx'
 import StructureGuide from './components/StructureGuide.jsx'
+import LanguageSelector from './components/LanguageSelector.jsx'
+import { localizeControlCatalog } from './i18n/localizeControls.js'
 import { extractControlIdsFromText, getControlById } from './lib/controlCatalog.js'
 import './App.css'
 
-const TABS = [
-  { id: 'device', label: 'Device' },
-  { id: 'structure', label: 'Structure' },
-  { id: 'quickref', label: 'Essentiels' },
-  { id: 'changelog', label: 'Changelog' },
-]
+const TAB_IDS = ['device', 'structure', 'quickref', 'changelog']
 
 function buildShortcutHint(shortcut, selectedControlId) {
   const source = `${shortcut?.key || ''} ${shortcut?.action || ''}`.toUpperCase()
@@ -39,10 +37,10 @@ function buildShortcutHint(shortcut, selectedControlId) {
   }
 }
 
-function buildSearchIndex() {
+function buildSearchIndex(knobs, buttons) {
   const items = []
 
-  for (const knob of KNOBS) {
+  for (const knob of knobs) {
     items.push({
       type: 'knob',
       id: knob.id,
@@ -63,7 +61,7 @@ function buildSearchIndex() {
     })
   }
 
-  for (const button of BUTTONS) {
+  for (const button of buttons) {
     items.push({
       type: 'button',
       id: button.id,
@@ -87,14 +85,63 @@ function buildSearchIndex() {
   return items
 }
 
-const SEARCH_INDEX = buildSearchIndex()
-
 export default function App() {
+  const { t, i18n } = useTranslation()
+  const language = String(i18n.resolvedLanguage || i18n.language || 'fr').toLowerCase()
+  const tutorialLanguage = language.startsWith('fr') ? 'fr' : 'en'
+  const tutorialVideoUrl = String(import.meta.env.VITE_TUTORIAL_VIDEO_URL || '').trim()
+  const tutorialQuery = new URLSearchParams({ lang: tutorialLanguage })
+
+  if (tutorialVideoUrl) {
+    tutorialQuery.set('video', tutorialVideoUrl)
+  }
+
+  const tutorialHref = `/tutorial.html?${tutorialQuery.toString()}`
   const [tab, setTab] = useState('device')
   const [selected, setSelected] = useState(null)
   const [query, setQuery] = useState('')
   const [searchOpen, setSearchOpen] = useState(false)
   const [deviceHint, setDeviceHint] = useState(null)
+
+  const { knobs, buttons } = useMemo(
+    () => localizeControlCatalog(t, KNOBS, BUTTONS),
+    [t, i18n.language],
+  )
+
+  const controlsById = useMemo(
+    () => new Map([
+      ...knobs.map((item) => [item.id, { type: 'knob', id: item.id, data: item }]),
+      ...buttons.map((item) => [item.id, { type: 'button', id: item.id, data: item }]),
+    ]),
+    [knobs, buttons],
+  )
+
+  const searchIndex = useMemo(
+    () => buildSearchIndex(knobs, buttons),
+    [knobs, buttons],
+  )
+
+  const tabs = [
+    { id: TAB_IDS[0], label: t('app.tabs.device') },
+    { id: TAB_IDS[1], label: t('app.tabs.structure') },
+    { id: TAB_IDS[2], label: t('app.tabs.quickref') },
+    { id: TAB_IDS[3], label: t('app.tabs.changelog') },
+  ]
+
+  useEffect(() => {
+    setSelected((current) => {
+      if (!current?.id) return current
+      const localizedTarget = controlsById.get(current.id)
+      if (!localizedTarget) return current
+      if (current.data === localizedTarget.data && current.type === localizedTarget.type) return current
+
+      return {
+        type: localizedTarget.type,
+        id: localizedTarget.id,
+        data: localizedTarget.data,
+      }
+    })
+  }, [controlsById])
 
   const closeSearch = useCallback(() => {
     setSearchOpen(false)
@@ -127,7 +174,7 @@ export default function App() {
 
     const normalizedQuery = query.toLowerCase()
 
-    return SEARCH_INDEX
+    return searchIndex
       .filter((item) => item.text.includes(normalizedQuery))
       .sort((a, b) => {
         const aExact = a.label.toLowerCase().startsWith(normalizedQuery) ? 2 : 0
@@ -135,7 +182,7 @@ export default function App() {
         return bExact - aExact
       })
       .slice(0, 8)
-  }, [query])
+  }, [query, searchIndex])
 
   const handleSelect = useCallback((type, data) => {
     if (!data?.id) return
@@ -145,7 +192,7 @@ export default function App() {
 
   const openControlById = useCallback(
     (controlId) => {
-      const target = getControlById(controlId)
+      const target = controlsById.get(controlId) || getControlById(controlId)
       if (!target) return
 
       closeSearch()
@@ -153,7 +200,7 @@ export default function App() {
       setDeviceHint(null)
       setSelected({ type: target.type, id: target.id, data: target.data })
     },
-    [closeSearch],
+    [closeSearch, controlsById],
   )
 
   const handleSearchSelect = useCallback(
@@ -180,12 +227,12 @@ export default function App() {
           />
           <div>
             <div className="app-brand-title">TORSO T-1</div>
-            <div className="app-brand-subtitle">MANUEL INTERACTIF</div>
+            <div className="app-brand-subtitle">{t('app.brand.subtitle')}</div>
           </div>
         </div>
 
         <nav className="app-tabs">
-          {TABS.map((tabItem, i) => (
+          {tabs.map((tabItem, i) => (
             <Fragment key={tabItem.id}>
               {i > 0 && <span className="app-tab-sep" aria-hidden>|</span>}
               <button
@@ -203,7 +250,7 @@ export default function App() {
             rel="noopener noreferrer"
             className="app-tab-btn app-tab-link"
           >
-            Official Manual
+            {t('app.tabs.officialManual')}
           </a>
         </nav>
 
@@ -211,14 +258,25 @@ export default function App() {
 
         <div className="app-version-badge">v2.1.3</div>
 
-        <button onClick={() => setSearchOpen(true)} className="app-search-btn">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-            <circle cx="11" cy="11" r="8" />
-            <path d="m21 21-4.35-4.35" />
-          </svg>
-          <span className="app-search-label">Rechercher</span>
-          <span className="app-search-kbd">⌘K</span>
-        </button>
+        <div className="app-header-controls">
+          <a
+            href={tutorialHref}
+            className="app-search-btn app-help-btn"
+            aria-label={t('app.tutorial.button')}
+            title={t('app.tutorial.button')}
+          >
+            <span className="app-help-icon" aria-hidden>?</span>
+          </a>
+          <button onClick={() => setSearchOpen(true)} className="app-search-btn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.35-4.35" />
+            </svg>
+            <span className="app-search-label">{t('app.search.button')}</span>
+            <span className="app-search-kbd">⌘K</span>
+          </button>
+          <LanguageSelector />
+        </div>
       </header>
 
       <main className="app-main">
@@ -229,6 +287,8 @@ export default function App() {
                 selected={selected}
                 onSelect={handleSelect}
                 hint={deviceHint}
+                knobs={knobs}
+                buttons={buttons}
               />
               <ExplanationPanel
                 item={selected?.data || null}
@@ -249,9 +309,9 @@ export default function App() {
                   />
                 ) : (
                   <div className="app-device-hint-card">
-                    <div className="app-device-hint-title">Raccourcis</div>
+                    <div className="app-device-hint-title">{t('app.deviceHint.title')}</div>
                     <div className="app-device-hint-body">
-                      Les raccourcis du contrôle sélectionné s’affichent ici.
+                      {t('app.deviceHint.body')}
                     </div>
                   </div>
                 )}

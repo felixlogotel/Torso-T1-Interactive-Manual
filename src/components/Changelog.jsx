@@ -1,25 +1,32 @@
-import { VERSIONS } from '../data/changelog.js'
+import { useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import InlineControlText from './InlineControlText.jsx'
 
 const TYPE_STYLES = {
-  major:  { color: '#9A72C4', bg: 'rgba(154,114,196,0.12)', border: 'rgba(154,114,196,0.25)', label: 'Majeure' },
-  bugfix: { color: '#5BA3C9', bg: 'rgba(91,163,201,0.08)',  border: 'rgba(91,163,201,0.18)',  label: 'Bugfix'  },
+  major: { color: '#9A72C4', bg: 'rgba(154,114,196,0.12)', border: 'rgba(154,114,196,0.25)' },
+  bugfix: { color: '#5BA3C9', bg: 'rgba(91,163,201,0.08)', border: 'rgba(91,163,201,0.18)' },
 }
 
 const ENTRY_ICONS = {
-  features:     { icon: '✦', color: '#6AB870', label: 'Nouvelles fonctionnalités' },
-  enhancements: { icon: '↑', color: '#C49042', label: 'Améliorations'            },
-  bugfixes:     { icon: '⬡', color: '#5BA3C9', label: 'Corrections'              },
+  features: { icon: '✦', color: '#6AB870' },
+  enhancements: { icon: '↑', color: '#C49042' },
+  bugfixes: { icon: '⬡', color: '#5BA3C9' },
 }
 
 export default function ChangelogView({ onNavigateControl }) {
+  const { t, i18n } = useTranslation('changelog')
+  const versions = useMemo(
+    () => t('versions', { returnObjects: true }),
+    [t, i18n.language],
+  )
+
   return (
     <div>
       {/* Page header */}
       <div style={{ marginBottom: 28 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', marginBottom: 6 }}>
           <h1 style={{ fontSize: 24, fontWeight: 600, color: 'var(--text)', margin: 0 }}>
-            Changelog
+            {t('title')}
           </h1>
           <a
             href="https://torsoelectronics.com/pages/t-1-changelog"
@@ -27,11 +34,11 @@ export default function ChangelogView({ onNavigateControl }) {
             rel="noopener noreferrer"
             className="changelog-official-btn"
           >
-            Official Changelog
+            {t('officialButton')}
           </a>
         </div>
         <p style={{ fontSize: 17, color: 'var(--text-2)', lineHeight: 1.48 }}>
-          Historique des mises à jour du firmware T-1.
+          {t('subtitle')}
         </p>
       </div>
 
@@ -44,7 +51,7 @@ export default function ChangelogView({ onNavigateControl }) {
         }} />
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-          {VERSIONS.map((ver, vi) => {
+          {versions.map((ver) => {
             const style = TYPE_STYLES[ver.type] || TYPE_STYLES.bugfix
             const isMajor = ver.type === 'major'
 
@@ -94,13 +101,13 @@ export default function ChangelogView({ onNavigateControl }) {
                         letterSpacing: 2, color: style.color,
                         background: `${style.color}18`, border: `1px solid ${style.color}30`,
                         borderRadius: 3, padding: '2px 7px',
-                      }}>{style.label.toUpperCase()}</span>
+                      }}>{String(t(`types.${ver.type}`)).toUpperCase()}</span>
                     )}
                   </div>
 
                   {/* Entries by category */}
                   {Object.entries(ver.entries).map(([cat, items]) => {
-                    const { icon, color, label } = ENTRY_ICONS[cat] || {}
+                    const { icon, color } = ENTRY_ICONS[cat] || {}
                     return (
                       <div key={cat} style={{ marginBottom: 12 }}>
                         {isMajor && (
@@ -109,7 +116,7 @@ export default function ChangelogView({ onNavigateControl }) {
                             letterSpacing: 2, color: color || 'var(--text-3)',
                             marginBottom: 6, display: 'flex', alignItems: 'center', gap: 5,
                           }}>
-                            <span>{icon}</span> {label}
+                            <span>{icon}</span> {t(`categories.${cat}`)}
                           </div>
                         )}
                         <ul style={{

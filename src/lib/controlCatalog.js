@@ -24,26 +24,32 @@ const CONTROL_ENTRIES = [
 ]
 
 const CONTROL_BY_ID = new Map(CONTROL_ENTRIES.map((item) => [item.id, item]))
-const CONTROL_ALIAS_TO_ID = new Map()
+const CONTROL_ALIAS_MAP = new Map()
 
-function registerAlias(alias, id) {
+function registerAlias(alias, id, source = 'primary') {
   if (!alias) return
-  CONTROL_ALIAS_TO_ID.set(String(alias).toUpperCase(), id)
+  const normalizedAlias = String(alias).toUpperCase()
+  const existing = CONTROL_ALIAS_MAP.get(normalizedAlias)
+
+  // Prefer primary labels over secondary aliases when collisions happen.
+  if (existing?.source === 'primary' && source !== 'primary') return
+
+  CONTROL_ALIAS_MAP.set(normalizedAlias, { id, source })
 }
 
 for (const control of CONTROL_ENTRIES) {
-  registerAlias(control.label, control.id)
-  registerAlias(control.secondary, control.id)
+  registerAlias(control.label, control.id, 'primary')
+  registerAlias(control.secondary, control.id, 'secondary')
 }
 
-registerAlias('VB', 'VB')
-registerAlias('VBX', 'VB')
+registerAlias('VB', 'VB', 'primary')
+registerAlias('VBX', 'VB', 'primary')
 
 for (let index = 1; index <= 16; index += 1) {
-  registerAlias(`VB${index}`, 'VB')
+  registerAlias(`VB${index}`, 'VB', 'primary')
 }
 
-const CONTROL_ALIAS_PATTERN = Array.from(CONTROL_ALIAS_TO_ID.keys())
+const CONTROL_ALIAS_PATTERN = Array.from(CONTROL_ALIAS_MAP.keys())
   .sort((left, right) => right.length - left.length)
   .map(escapeRegex)
   .join('|')
@@ -82,8 +88,12 @@ export function splitTextWithControls(text) {
       parts.push({ type: 'text', value: source.slice(lastIndex, tokenStart) })
     }
 
-    const controlId = CONTROL_ALIAS_TO_ID.get(value.toUpperCase())
-    const control = controlId ? getControlById(controlId) : null
+    const aliasEntry = CONTROL_ALIAS_MAP.get(value.toUpperCase())
+    const isUppercaseReference = value === value.toUpperCase()
+    const isSecondaryAlias = aliasEntry?.source === 'secondary'
+    const allowSecondaryAlias = hasWrappingBrackets || isUppercaseReference
+    const shouldResolve = aliasEntry && (!isSecondaryAlias || allowSecondaryAlias)
+    const control = shouldResolve ? getControlById(aliasEntry.id) : null
 
     if (control) {
       parts.push({

@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import './SearchOverlay.css'
 
 const QUICK_SUGGESTIONS = ['PITCH', 'CYCLES', 'BANK', 'VOICING', 'RANDOM', 'TEMPO']
 
 export default function SearchOverlay({ query, setQuery, results, onSelect, onClose }) {
+  const { t } = useTranslation()
   const [cursor, setCursor] = useState(0)
 
   useEffect(() => {
@@ -41,7 +43,7 @@ export default function SearchOverlay({ query, setQuery, results, onSelect, onCl
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Rechercher un paramètre, raccourci..."
+            placeholder={t('searchOverlay.placeholder')}
             className="search-input"
           />
           <button type="button" className="search-esc" onClick={onClose}>ESC</button>
@@ -83,12 +85,12 @@ export default function SearchOverlay({ query, setQuery, results, onSelect, onCl
         )}
 
         {query && results.length === 0 && (
-          <div className="search-empty">Aucun résultat pour "{query}"</div>
+          <div className="search-empty">{t('searchOverlay.empty', { query })}</div>
         )}
 
         {!query && (
           <div className="search-suggestions">
-            <span className="search-suggestions-label">Suggestions rapides</span>
+            <span className="search-suggestions-label">{t('searchOverlay.quickSuggestions')}</span>
             {QUICK_SUGGESTIONS.map((suggestion) => (
               <button key={suggestion} onClick={() => setQuery(suggestion)} className="search-suggestion-btn">
                 {suggestion}

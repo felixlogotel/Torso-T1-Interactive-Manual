@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { SECTIONS } from '../data/params.js'
 import InlineControlText from './InlineControlText.jsx'
 import { normalizeControlText } from '../lib/textFormatting.js'
@@ -64,6 +65,8 @@ export default function DetailPanel({
   onShortcutHover,
   onShortcutLeave,
 }) {
+  const { t } = useTranslation()
+
   if (!item) return null
 
   const sectionDef = item.section ? SECTIONS[item.section] : null
@@ -127,7 +130,7 @@ export default function DetailPanel({
                 fontSize: 11, fontFamily: 'var(--font-mono)', letterSpacing: 1.3,
                 color: '#E09930bb', background: '#E0993015',
                 border: '1px solid #E0993028', borderRadius: 4, padding: '2px 8px',
-              }}>PERFORMANCE</span>
+              }}>{t('detailPanel.performance')}</span>
             )}
 
             {isNew && (
@@ -173,7 +176,7 @@ export default function DetailPanel({
             <div style={{
               fontSize: 12, fontFamily: 'var(--font-mono)', letterSpacing: 2.2,
               color: 'var(--text-3)', marginBottom: 8, fontWeight: 700,
-            }}>RACCOURCIS</div>
+            }}>{t('detailPanel.shortcutsTitle')}</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {item.shortcuts.map((s, i) => (
                 <ShortcutRow
@@ -189,7 +192,7 @@ export default function DetailPanel({
           </div>
         ) : (
           <div style={{ fontSize: 14, color: 'var(--text-3)' }}>
-            Aucun raccourci pour ce contrôle.
+            {t('detailPanel.noShortcuts')}
           </div>
         )}
 
@@ -199,7 +202,7 @@ export default function DetailPanel({
             <div style={{
               fontSize: 12, fontFamily: 'var(--font-mono)', letterSpacing: 2.2,
               color: 'var(--text-3)', marginBottom: 8, fontWeight: 700,
-            }}>DÉTAILS</div>
+            }}>{t('detailPanel.detailsTitle')}</div>
             <div style={{
               display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 4,
             }}>
