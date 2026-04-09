@@ -110,6 +110,13 @@
         display: block;
       }
 
+      .no-video {
+        padding: 32px 16px;
+        text-align: center;
+        color: var(--text-2);
+        font-size: 14px;
+      }
+
     </style>
   </head>
   <body>
@@ -126,9 +133,9 @@
         <div class="panel-head">
           <h1 id="title">How the Torso T-1 Interactive Manual Works</h1>
         </div>
-        <div class="player-wrap">
+        <div class="player-wrap" id="player-wrap">
           <video id="tutorial-video" controls preload="metadata" playsinline>
-            <source id="tutorial-video-source" src="/Torso%20T-1%20Interactive%20Manual.mp4" type="video/mp4" />
+            <source id="tutorial-video-source" src="" type="video/mp4" />
             Your browser does not support the video tag.
           </video>
         </div>
@@ -136,6 +143,10 @@
     </main>
 
     <script>
+      // Built-in video URL injected by Vite at build time from VITE_TUTORIAL_VIDEO_URL.
+      // If the env variable was not set, Vite leaves the %...% placeholder as-is.
+      const BUILT_IN_VIDEO = '%VITE_TUTORIAL_VIDEO_URL%';
+
       function normalizeLanguage(input) {
         if (!input) return null;
         const normalized = String(input).toLowerCase().split("-")[0];
@@ -158,7 +169,9 @@
 
       const urlVideo = normalizeVideoUrl(query.get("video"));
       const storedVideo = normalizeVideoUrl(window.localStorage.getItem("torso-t1-manual.videoUrl"));
-      const videoUrl = urlVideo || storedVideo || "/Torso%20T-1%20Interactive%20Manual.mp4";
+      // Use the Vite-injected URL only if it was actually substituted (not left as %...%)
+      const builtInVideo = normalizeVideoUrl(BUILT_IN_VIDEO.startsWith('%') ? null : BUILT_IN_VIDEO);
+      const videoUrl = urlVideo || storedVideo || builtInVideo;
 
       window.localStorage.setItem("torso-t1-manual.language", language);
       if (urlVideo) {
@@ -167,9 +180,13 @@
 
       const source = document.getElementById("tutorial-video-source");
       const video = document.getElementById("tutorial-video");
-      if (source && video) {
+      const playerWrap = document.getElementById("player-wrap");
+
+      if (videoUrl && source && video) {
         source.src = videoUrl;
         video.load();
+      } else if (playerWrap) {
+        playerWrap.innerHTML = '<p class="no-video">Video URL not configured. Please contact your administrator.</p>';
       }
 
       if (language === "fr") {
@@ -177,6 +194,9 @@
         document.title = "Tutoriel Vidéo Torso T-1";
         document.getElementById("title").textContent = "Comment fonctionne le Manuel Interactif Torso T-1";
         document.getElementById("back-link").textContent = "← Retour au manuel";
+        if (!videoUrl && playerWrap) {
+          playerWrap.innerHTML = '<p class="no-video">URL vidéo non configurée. Contactez votre administrateur.</p>';
+        }
       }
     </script>
   </body>
